@@ -135,6 +135,20 @@
       if(HAS_ZH.test(out)) out = out.replace(/[\u3400-\u9fff]+/g,"").replace(/\s+/g," ").trim() || "Custom Item";
       return out;
     }
+    function englishText(v){
+      const previous = lang;
+      lang = "en";
+      const translated = labelText(v);
+      lang = previous;
+      return translated;
+    }
+    function bilingualText(v){
+      const zh = norm(v).normalize("NFKC").replaceAll("遥控手柄，用于AME遥控","遥控手柄，用于AMR遥控").replaceAll("⽅","方").replaceAll("⻓","长");
+      if(!zh) return "";
+      const en = englishText(zh);
+      if(!en || en === zh) return zh;
+      return `${zh} / ${en}`;
+    }
     const splitOptions = v => norm(v).replaceAll(";","；").split("；").map(x=>x.trim()).filter(Boolean);
     const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
     const keyOf = (prefix, name, id="") => `${prefix}::${name}${id ? "::"+id : ""}`;
@@ -494,11 +508,22 @@
       if(val && typeof val === "object") return val.name || "Attachment";
       return labelText(val ?? fallback ?? "");
     }
+    function displayDraftValueRaw(key, fallback=""){
+      const val = draft.values[key];
+      if(val && typeof val === "object") return val.name || "附件 / Attachment";
+      return norm(val ?? fallback ?? "");
+    }
     function rowExportValue(row, prefix="main", cardId="", disabled=false){
       const key = keyOf(prefix, row.name, cardId);
       const raw = row.group === "项目基本信息" ? "" : norm(row.values[draft.model]);
       const fallback = splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw;
       return disabled ? labelText(raw || "-") : displayDraftValue(key, fallback);
+    }
+    function rowExportValueRaw(row, prefix="main", cardId="", disabled=false){
+      const key = keyOf(prefix, row.name, cardId);
+      const raw = row.group === "项目基本信息" ? "" : norm(row.values[draft.model]);
+      const fallback = splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw;
+      return disabled ? (raw || "-") : displayDraftValueRaw(key, fallback);
     }
     function reportTable(title, items){
       if(!items.length) return "";
@@ -510,6 +535,13 @@
         name: labelText(r.name),
         value: rowExportValue(r, "main", "", disabled),
         remark: labelText(r.remark)
+      }));
+    }
+    function exportRowsBilingual(group, section, disabled=false){
+      return rows(group, section).map(r => ({
+        name: bilingualText(r.name),
+        value: bilingualText(rowExportValueRaw(r, "main", "", disabled)) || "-",
+        remark: bilingualText(r.remark)
       }));
     }
     function exportDeviceSection(title){
@@ -546,6 +578,26 @@
       ];
       return { basicItems, salesItems, sections };
     }
+    function collectReportSectionsBilingual(){
+      const basicItems = rows("项目基本信息").filter(r=>r.name!=="车型").map(r => ({
+        name: bilingualText(r.name),
+        value: bilingualText(displayDraftValueRaw(keyOf("main",r.name))) || "-",
+        remark: bilingualText(r.remark)
+      })).concat([
+        { name:"车型系列 / Model Series", value:bilingualText(modelSeries(draft.model)), remark:"" },
+        { name:"车型 / Model", value:bilingualText(draft.model), remark:"" }
+      ]);
+      const siteRemark = displayDraftValueRaw(keyOf("main","现场特殊需求备注"));
+      const salesItems = [{ name:bilingualText("现场特殊需求备注"), value:bilingualText(siteRemark) || "-", remark:bilingualText("用于补充说明现场工况、客户特殊要求或其他需要研发关注的信息。") }]
+        .concat(exportRowsBilingual("售前配置项","售前填写"));
+      const sections = [
+        { title:"项目基本信息 / Basic Info", items:basicItems },
+        { title:"售前配置项 / Sales Options", items:salesItems },
+        { title:"用电相关 / Power & Charging", items:exportRowsBilingual("用电相关","售前填写") },
+        { title:"默认配置 / Default Configuration", items:exportRowsBilingual("默认配置","默认配置",true) }
+      ];
+      return { sections };
+    }
     function deviceReportSections(title){
       if(draft.repeaters[`${title}::skip`] === true) return [{ title:sectionTitle(title), items:[{ name: sectionTitle(title), value: `${t("noNeedPrefix")} ${sectionTitle(title)}`, remark: "" }] }];
       const list = config?.devices?.[title] || [];
@@ -567,6 +619,33 @@
           name: labelText(r.name),
           value: rowExportValue(r,title,id),
           remark: labelText(r.remark)
+        }))
+      }));
+    }
+    function deviceReportSectionsBilingual(title){
+      const titleBi = bilingualText(title);
+      if(draft.repeaters[`${title}::skip`] === true) return [{ title:titleBi, items:[{ name:titleBi, value:bilingualText(`该项目无需${title}`), remark:"" }] }];
+      const list = config?.devices?.[title] || [];
+      const ids = draft.repeaters[title] || ["1"];
+      if(list.length){
+        return ids.map((id,idx) => {
+          const subtypeKey = keyOf(title,"子类型",id);
+          const selectedName = draft.values[subtypeKey] || list[0].subtype;
+          const selected = list.find(x => x.subtype === selectedName) || list[0];
+          const subtypeName = `${title}子类型`;
+          const subtypeValue = selected.translation ? `${selected.subtype} / ${selected.translation}` : selected.subtype;
+          const items = [{ name:bilingualText(subtypeName), value:bilingualText(subtypeValue), remark:"" }]
+            .concat(selected.fields.map(r => ({ name:bilingualText(r.name), value:bilingualText(displayDraftValueRaw(keyOf(title,r.name,id))) || "-", remark:"" })));
+          return { title:`${titleBi} ${idx+1}`, items };
+        });
+      }
+      const listRows = title === "托盘" ? rows("托盘","售前填写") : rows("料架","售前填写");
+      return ids.map((id,idx) => ({
+        title:`${titleBi} ${idx+1}`,
+        items:visibleRepeaterRows(title,listRows,id).map(r => ({
+          name:bilingualText(r.name),
+          value:bilingualText(rowExportValueRaw(r,title,id)) || "-",
+          remark:bilingualText(r.remark)
         }))
       }));
     }
@@ -620,24 +699,24 @@
         pdf.setTextColor(4, 74, 51);
         pdf.text(section.title, margin, y);
         y += 7;
-        drawRow([lang==="en"?"Item":"项目", lang==="en"?"Value":"内容", lang==="en"?"Notes":"备注"], true);
+        drawRow(["项目 / Item", "内容 / Value", "备注 / Notes"], true);
         section.items.forEach(item => drawRow([item.name, item.value || "-", item.remark || ""]));
         y += 5;
       };
       pdf.setFontSize(17);
       pdf.setTextColor(3, 45, 31);
-      pdf.text(t("title"), margin, y);
+      pdf.text("售前配置平台 / Presales Configuration", margin, y);
       y += 8;
       pdf.setFontSize(9);
       pdf.setTextColor(80, 92, 88);
-      pdf.text(`${t("tpl")}: ${displayFileName(config.fileName)}    ${t("model")}: ${labelText(draft.model)}`, margin, y);
+      pdf.text(`模板 / Template: ${config.fileName}    车型 / Model: ${bilingualText(draft.model)}`, margin, y);
       y += 8;
-      const report = collectReportSections();
+      const report = collectReportSectionsBilingual();
       drawSection(report.sections[0]);
       drawSection(report.sections[1]);
       drawSection(report.sections[2]);
-      deviceReportSections("托盘").forEach(drawSection);
-      deviceReportSections("料架").forEach(drawSection);
+      deviceReportSectionsBilingual("托盘").forEach(drawSection);
+      deviceReportSectionsBilingual("料架").forEach(drawSection);
       drawSection(report.sections[3]);
       pdf.setFontSize(1);
       pdf.setTextColor(255,255,255);
@@ -645,13 +724,13 @@
       pdf.save(fileName);
     }
     function exportHtml(fileName, autoPrint=true){
-      const report = collectReportSections();
+      const report = collectReportSectionsBilingual();
       const body = [
         reportTable(report.sections[0].title, report.sections[0].items),
         reportTable(report.sections[1].title, report.sections[1].items),
         reportTable(report.sections[2].title, report.sections[2].items),
-        exportDeviceSection("托盘"),
-        exportDeviceSection("料架"),
+        deviceReportSectionsBilingual("托盘").map(s=>reportTable(s.title,s.items)).join(""),
+        deviceReportSectionsBilingual("料架").map(s=>reportTable(s.title,s.items)).join(""),
         reportTable(report.sections[3].title, report.sections[3].items)
       ].join("");
       return `<!doctype html><html lang="${lang==="en"?"en":"zh-CN"}"><head><meta charset="utf-8"><title>${escapeHtml(fileName.replace(/\.pdf$/i,""))}</title><style>
@@ -662,7 +741,7 @@
         th,td{border:1px solid #c8d6d0;padding:7px 8px;vertical-align:top;white-space:pre-wrap;word-break:break-word}
         th{width:28%;background:#eef6f2;text-align:left} td:nth-child(2){width:44%} td:nth-child(3){width:28%;color:#555}
         @page{size:A4;margin:14mm}@media print{body{margin:0}.noPrint{display:none}}
-      </style></head><body><h1>${escapeHtml(t("title"))}</h1><div class="meta">${escapeHtml(t("tpl"))}: ${escapeHtml(displayFileName(config.fileName))} · ${escapeHtml(t("model"))}: ${escapeHtml(labelText(draft.model))}</div>${body}<div class="restore">${RESTORE_PREFIX + encodeDraft()}</div>${autoPrint ? "<script>setTimeout(()=>window.print(),300)<\\/script>" : ""}</body></html>`;
+      </style></head><body><h1>售前配置平台 / Presales Configuration</h1><div class="meta">模板 / Template: ${escapeHtml(config.fileName)} · 车型 / Model: ${escapeHtml(bilingualText(draft.model))}</div>${body}<div class="restore">${RESTORE_PREFIX + encodeDraft()}</div>${autoPrint ? "<script>setTimeout(()=>window.print(),300)<\\/script>" : ""}</body></html>`;
     }
     function printExportForm(fileName){
       const html = exportHtml(fileName, false);
