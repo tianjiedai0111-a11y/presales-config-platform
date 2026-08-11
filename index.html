@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>售前配置平台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
   <style>
     :root{--bg:#070b0a;--bg2:#101614;--surface:rgba(18,26,24,.72);--surface2:rgba(24,35,32,.78);--field:rgba(20,31,28,.84);--line:rgba(104,245,190,.20);--line2:rgba(104,245,190,.38);--green:#21e39b;--green2:#87ffd1;--muted:#9ab4aa;--text:#edfdf7;--paperText:#e9fbf5;--danger:#ff6f75}
     *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100vh;color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;background:#050706;position:relative;overflow-x:hidden}
@@ -19,6 +20,7 @@
     .grid{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(135,255,209,.14);padding:1px}.grid.default{grid-template-columns:repeat(3,minmax(0,1fr))}
     .field{min-height:76px;background:var(--field);padding:15px 17px}.field:nth-child(4n+2),.field:nth-child(4n+3){background:rgba(24,37,33,.82)}.field.salesRemark{grid-column:1/-1;background:linear-gradient(135deg,rgba(19,54,42,.72),rgba(17,29,26,.86))}.field.disabled{background:linear-gradient(135deg,rgba(19,38,33,.78),rgba(12,20,18,.78));border-left:3px solid rgba(135,255,209,.42)}.field.disabled .name::after{content:"展示项";margin-left:8px;padding:2px 7px;border:1px solid rgba(135,255,209,.25);border-radius:999px;color:#98c8b7;font-size:11px;font-weight:600}html[lang="en"] .field.disabled .name::after{content:"Read only"}.meta{min-height:24px;display:flex;justify-content:space-between;gap:8px;margin-bottom:7px}.name{font-weight:700;color:#f1fff9}.remark{font-size:12px;line-height:1.5;color:#97baad;margin:0 0 9px;white-space:pre-wrap}.req{color:#ff747b}
     input[type=text],input[type=password],input[type=date],select,textarea{width:100%;border:1px solid rgba(135,255,209,.28);border-radius:10px;padding:11px 12px;min-height:44px;background:rgba(4,10,9,.72);color:#f5fffb;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}input::placeholder,textarea::placeholder{color:#7f978e}select option{background:#0d1714;color:#f5fffb}input:focus,select:focus,textarea:focus{outline:none;border-color:#45f5b3;box-shadow:0 0 0 3px rgba(33,227,155,.18),0 0 24px rgba(33,227,155,.12)}button:focus-visible,a:focus-visible,label.upload:focus-within{outline:3px solid rgba(33,227,155,.80);outline-offset:3px} textarea{resize:vertical;min-height:104px}
+    .flatpickr-calendar{background:#09110f;border:1px solid rgba(135,255,209,.30);box-shadow:0 24px 70px rgba(0,0,0,.55);color:#eafff7}.flatpickr-calendar.arrowTop:before,.flatpickr-calendar.arrowTop:after{border-bottom-color:#09110f}.flatpickr-months .flatpickr-month,.flatpickr-current-month .flatpickr-monthDropdown-months,.flatpickr-weekdays,.flatpickr-weekday{background:#09110f;color:#eafff7}.flatpickr-day{color:#dffcf2;border-radius:8px}.flatpickr-day:hover,.flatpickr-day:focus{background:rgba(33,227,155,.16);border-color:rgba(33,227,155,.38)}.flatpickr-day.today{border-color:#21e39b}.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{background:#21e39b;border-color:#21e39b;color:#03110c}.flatpickr-day.flatpickr-disabled,.flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay{color:#53645e}.numInputWrapper span{border-color:rgba(135,255,209,.15)}
     .readonly{white-space:pre-wrap;border:1px dashed rgba(135,255,209,.28);border-radius:10px;min-height:42px;padding:10px;background:rgba(8,18,15,.54);color:#cde9df}
     .ghost{border:1px solid rgba(135,255,209,.30);background:rgba(255,255,255,.05);border-radius:999px;padding:7px 10px;color:#d9fff1;cursor:pointer}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:18px;background:rgba(7,12,11,.36)}.cards.single{grid-template-columns:1fr}.card{border:1px solid rgba(135,255,209,.22);background:linear-gradient(135deg,rgba(22,33,30,.84),rgba(10,14,13,.86));border-radius:16px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06)}.cardTitle{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(135,255,209,.18);background:rgba(18,46,36,.48);color:#eafff7}.card .field{border-bottom:1px solid rgba(135,255,209,.12)}
     .thumbBox{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.thumb{width:210px;height:142px;object-fit:cover;border:1px solid rgba(135,255,209,.25);border-radius:12px}.guideImg{width:100%;max-width:320px;max-height:210px;object-fit:contain;display:block;margin:0 0 10px;border:1px solid rgba(135,255,209,.22);border-radius:12px;background:rgba(255,255,255,.92);cursor:pointer}.deviceGallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:14px;background:rgba(7,12,11,.50);border-bottom:1px solid rgba(135,255,209,.16)}.deviceGallery img{width:100%;height:200px;object-fit:contain;background:#f7faf8;border:1px solid rgba(135,255,209,.22);border-radius:12px;cursor:pointer}.empty{min-height:164px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#a4bdb4;background:rgba(8,13,12,.52);border:1px solid rgba(135,255,209,.18);border-radius:14px}
@@ -75,6 +77,8 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/zh.js"></script>
   <script src="pdf-font-simhei.js"></script>
   <script>
     const STORAGE_KEY = "presales-config-web-static-v1";
@@ -83,8 +87,8 @@
     const USERS = { TJ:"000000", LLL:"000000", LH:"000000", PRESALES:"000000", SALES:"000000" };
     let lang = localStorage.getItem("presales-config-lang") || "zh";
     const I18N = {
-      zh:{title:"售前配置平台",loginSub:"请输入账号密码继续",username:"用户名",password:"密码",login:"登录",loginFail:"用户名或密码错误",template:"模板",uploadTpl:"上传模板",uploadPdf:"上传PDF恢复",downloadTpl:"下载模板",clear:"清空暂存",clearConfirm:"确认清空当前暂存内容吗？此操作不会影响配置模板。",exportPdf:"导出 PDF",logout:"退出",loadingTpl:"正在加载默认模板...",tpl:"当前模板",restored:"已从PDF恢复",logged:"当前用户",series:"车型系列",model:"车型",chooseSeries:"请选择车型系列",chooseModel:"请选择车型",chooseModelFirst:"选择车型后展示配置内容",basic:"项目基本信息",sales:"售前配置项",power:"用电相关",pallet:"托盘",rack:"料架",defaults:"默认配置",pwdPrompt:"请输入下载密码",pwdWrong:"密码错误，无法下载模板。",tplDownloaded:"模板下载已开始",pdfGenerating:"生成中...",pdfDone:"PDF已生成",printHint:"已打开可打印表单，请在打印窗口选择“另存为 PDF”。",skip:"跳到配置内容",close:"关闭",uploadImage:"上传图片",delete:"删除",placeholder:"请输入",siteRemark:"现场特殊需求备注",siteRemarkHelp:"用于补充说明现场工况、客户特殊要求或其他需要研发关注的信息。",siteRemarkPh:"请输入现场特殊需求",need:"需要",noNeed:"无需",newItem:"新建",noNeedPrefix:"该项目无需"},
-      en:{title:"Presales Configuration",loginSub:"Sign in to continue",username:"Username",password:"Password",login:"Sign in",loginFail:"Invalid username or password",template:"Template",uploadTpl:"Upload Template",uploadPdf:"Restore PDF",downloadTpl:"Download Template",clear:"Clear Draft",clearConfirm:"Clear the current draft? This will not change the configuration template.",exportPdf:"Export PDF",logout:"Logout",loadingTpl:"Loading default template...",tpl:"Template",restored:"Restored from PDF",logged:"User",series:"Model Series",model:"Model",chooseSeries:"Select series",chooseModel:"Select model",chooseModelFirst:"Select a model to continue",basic:"Basic Info",sales:"Sales Options",power:"Power & Charging",pallet:"Pallet",rack:"Rack",defaults:"Default Configuration",pwdPrompt:"Enter download password",pwdWrong:"Wrong password. Template download blocked.",tplDownloaded:"Template download started",pdfGenerating:"Generating...",pdfDone:"PDF generated",printHint:"Printable form opened. Choose Save as PDF in the print dialog.",skip:"Skip to configuration",close:"Close",uploadImage:"Upload Image",delete:"Delete",placeholder:"Enter value",siteRemark:"Site Special Requirements",siteRemarkHelp:"Describe site conditions, customer-specific requirements, or engineering notes.",siteRemarkPh:"Describe special site requirements",need:"Add",noNeed:"No",newItem:"New",noNeedPrefix:"No configuration required for"}
+      zh:{title:"售前配置平台",loginSub:"请输入账号密码继续",username:"用户名",password:"密码",login:"登录",loginFail:"用户名或密码错误",template:"模板",uploadTpl:"上传模板",uploadPdf:"上传PDF恢复",downloadTpl:"下载模板",clear:"清空暂存",clearConfirm:"确认清空当前暂存内容吗？此操作不会影响配置模板。",exportPdf:"导出 PDF",logout:"退出",loadingTpl:"正在加载默认模板...",tpl:"当前模板",restored:"已从PDF恢复",logged:"当前用户",series:"车型系列",model:"车型",chooseSeries:"请选择车型系列",chooseModel:"请选择车型",chooseModelFirst:"选择车型后展示配置内容",basic:"项目基本信息",sales:"售前配置项",power:"用电相关",pallet:"托盘",rack:"料架",defaults:"默认配置",show:"展开",hide:"收起",pwdPrompt:"请输入下载密码",pwdWrong:"密码错误，无法下载模板。",tplDownloaded:"模板下载已开始",pdfGenerating:"生成中...",pdfDone:"PDF已生成",printHint:"已打开可打印表单，请在打印窗口选择“另存为 PDF”。",skip:"跳到配置内容",close:"关闭",uploadImage:"上传图片",delete:"删除",placeholder:"请输入",siteRemark:"现场特殊需求备注",siteRemarkHelp:"用于补充说明现场工况、客户特殊要求或其他需要研发关注的信息。",siteRemarkPh:"请输入现场特殊需求",need:"需要",noNeed:"无需",newItem:"新建",noNeedPrefix:"该项目无需"},
+      en:{title:"Presales Configuration",loginSub:"Sign in to continue",username:"Username",password:"Password",login:"Sign in",loginFail:"Invalid username or password",template:"Template",uploadTpl:"Upload Template",uploadPdf:"Restore PDF",downloadTpl:"Download Template",clear:"Clear Draft",clearConfirm:"Clear the current draft? This will not change the configuration template.",exportPdf:"Export PDF",logout:"Logout",loadingTpl:"Loading default template...",tpl:"Template",restored:"Restored from PDF",logged:"User",series:"Model Series",model:"Model",chooseSeries:"Select series",chooseModel:"Select model",chooseModelFirst:"Select a model to continue",basic:"Basic Info",sales:"Sales Options",power:"Power & Charging",pallet:"Pallet",rack:"Rack",defaults:"Default Configuration",show:"Expand",hide:"Collapse",pwdPrompt:"Enter download password",pwdWrong:"Wrong password. Template download blocked.",tplDownloaded:"Template download started",pdfGenerating:"Generating...",pdfDone:"PDF generated",printHint:"Printable form opened. Choose Save as PDF in the print dialog.",skip:"Skip to configuration",close:"Close",uploadImage:"Upload Image",delete:"Delete",placeholder:"Enter value",siteRemark:"Site Special Requirements",siteRemarkHelp:"Describe site conditions, customer-specific requirements, or engineering notes.",siteRemarkPh:"Describe special site requirements",need:"Add",noNeed:"No",newItem:"New",noNeedPrefix:"No configuration required for"}
     };
     const t = k => I18N[lang][k] || I18N.zh[k] || k;
     const sectionNames = new Set(["项目基本信息","售前配置项","用电相关","托盘","料架","默认配置"]);
@@ -406,9 +410,8 @@
         control = `<select data-key="${k}" aria-label="${escapeHtml(name)}">${splitOptions(raw).map(o=>`<option value="${escapeHtml(o)}" ${o===val?"selected":""}>${escapeHtml(labelText(o))}</option>`).join("")}</select>`;
       }else{
         const isDate = row.name.includes("时间");
-        const type = isDate && lang !== "en" ? "date" : "text";
-        const placeholder = isDate && lang === "en" ? "YYYY-MM-DD" : t("placeholder");
-        control = `<input type="${type}" data-key="${k}" aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${placeholder}">`;
+        const placeholder = isDate ? "YYYY-MM-DD" : t("placeholder");
+        control = `<input type="text" ${isDate ? 'data-date="1"' : ""} data-key="${k}" aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${placeholder}" autocomplete="off">`;
       }
       return `<div class="field ${disabled?"disabled":""}">${showGuide ? imagePreview : ""}<div class="meta"><div><div class="name">${escapeHtml(name)}${row.required?'<span class="req">*</span>':""}</div>${remark(labelText(row.remark))}</div>${showGuide ? "" : imageBtn}</div>${showGuide ? "" : imagePreview}${control}</div>`;
     }
@@ -479,7 +482,8 @@
       else if(pallet.length) html += repeater("托盘", pallet);
       if(config.devices?.["料架"]?.length) html += deviceRepeater("料架");
       else if(rack.length) html += repeater("料架", rack);
-      html += `<section class="band" id="defaultConfig"><div class="head"><h2>${t("defaults")}</h2></div><div class="grid default">${def.map(r=>field(r,"main","",true)).join("")}</div></section>`;
+      const defaultOpen = draft.defaultOpen === true;
+      html += `<section class="band" id="defaultConfig"><div class="head"><h2>${t("defaults")}</h2><button class="ghost" data-toggle-default aria-expanded="${defaultOpen}">${defaultOpen ? t("hide") : t("show")}</button></div>${defaultOpen ? `<div class="grid default">${def.map(r=>field(r,"main","",true)).join("")}</div>` : `<div class="empty"><strong>${lang === "en" ? "Default configuration is collapsed" : "默认配置已收起"}</strong></div>`}</section>`;
       root.innerHTML = html; bind(); save();
     }
 
@@ -488,6 +492,23 @@
         draft.values[e.target.dataset.key] = e.target.value;
         save();
         if(e.target.dataset.key.startsWith("料架::料架类型::") || e.target.dataset.deviceSubtype) render();
+      });
+      document.querySelectorAll("[data-date]").forEach(el => {
+        if(!window.flatpickr) return;
+        window.flatpickr(el, {
+          dateFormat:"Y-m-d",
+          allowInput:true,
+          disableMobile:true,
+          locale: lang === "zh" && window.flatpickr.l10ns?.zh ? window.flatpickr.l10ns.zh : "default",
+          onChange: (_, value) => {
+            draft.values[el.dataset.key] = value;
+            save();
+          },
+          onClose: (_, value) => {
+            draft.values[el.dataset.key] = value || el.value;
+            save();
+          }
+        });
       });
       document.querySelectorAll("[data-file]").forEach(el => el.onchange = e => {
         const f = e.target.files[0]; if(!f) return; const reader = new FileReader();
@@ -500,6 +521,7 @@
       document.querySelectorAll("[data-need]").forEach(el => el.onclick = () => { const t=el.dataset.need; draft.repeaters[`${t}::skip`] = false; if(!(draft.repeaters[t]||[]).length) draft.repeaters[t] = ["1"]; save(); render(); });
       document.querySelectorAll("[data-remove]").forEach(el => el.onclick = () => { const t=el.dataset.remove; draft.repeaters[t] = (draft.repeaters[t]||[]).filter(x=>x!==el.dataset.id); save(); render(); });
       document.querySelectorAll("[data-img]").forEach(el => el.onclick = () => { $("modalImg").src=el.dataset.img; $("modalTitle").textContent=el.dataset.title; $("modal").classList.add("show"); });
+      document.querySelectorAll("[data-toggle-default]").forEach(el => el.onclick = () => { draft.defaultOpen = !draft.defaultOpen; save(); render(); });
       const ss = $("seriesSelect"); if(ss) ss.onchange = e => { draft.series = e.target.value; draft.model = ""; save(); render(); };
       const ms = $("modelSelect"); if(ms) ms.onchange = e => { draft.model = e.target.value; draft.series = modelSeries(draft.model); save(); render(); };
     }
