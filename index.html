@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>售前配置平台</title>
+  <style>
+    :root{--bg:#070b0a;--bg2:#101614;--surface:rgba(18,26,24,.72);--surface2:rgba(24,35,32,.78);--field:rgba(20,31,28,.84);--line:rgba(104,245,190,.20);--line2:rgba(104,245,190,.38);--green:#21e39b;--green2:#87ffd1;--muted:#9ab4aa;--text:#edfdf7;--paperText:#e9fbf5;--danger:#ff6f75}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100vh;color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;background:#050706;position:relative;overflow-x:hidden}
+    body::before{content:"";position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 24% 12%,rgba(21,227,155,.22),transparent 34%),radial-gradient(circle at 78% 38%,rgba(33,227,155,.13),transparent 30%),linear-gradient(135deg,#070a09 0%,#111614 52%,#060807 100%)}
+    body::after{content:"";position:fixed;inset:0;z-index:-2;opacity:.34;background-image:linear-gradient(rgba(94,255,196,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(94,255,196,.12) 1px,transparent 1px);background-size:72px 72px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.96),rgba(0,0,0,.3))}
+    button,input,select,textarea{font:inherit}.appShell.isHidden{display:none}.skipLink{position:fixed;left:16px;top:-60px;z-index:100;padding:10px 14px;border-radius:999px;background:var(--green);color:#03100b;font-weight:700;text-decoration:none}.skipLink:focus{top:12px}.top{position:sticky;top:0;z-index:30;display:grid;grid-template-columns:minmax(300px,1fr) auto;align-items:center;gap:18px;margin:18px auto 0;max-width:1380px;padding:14px 18px;background:linear-gradient(135deg,rgba(18,25,23,.88),rgba(7,12,11,.80));backdrop-filter:blur(22px);border:1px solid rgba(135,255,209,.22);border-radius:20px;box-shadow:0 28px 80px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08)}
+    .brand{display:flex;align-items:center;gap:18px;min-width:0}.logoBox{width:188px;height:44px;display:flex;align-items:center;justify-content:flex-start;flex:0 0 auto}.logoBox img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 0 16px rgba(33,227,155,.18))}.top h1{margin:0;font-size:22px;line-height:1.2;color:#f8fffc;font-weight:800;white-space:nowrap}.top p{margin:0;color:#9ecabb;font-size:13px}.actions{display:flex;gap:9px;align-items:center;justify-content:flex-end;flex-wrap:nowrap}
+    .btn,.btn2,.upload{border:1px solid rgba(135,255,209,.32);border-radius:999px;padding:9px 13px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.04));color:#e5fff6;box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 10px 24px rgba(0,0,0,.24);transition:transform .18s ease,border-color .18s ease,background .18s ease;font-size:14px;white-space:nowrap}
+    .btn:hover,.btn2:hover,.upload:hover,.ghost:hover{transform:translateY(-1px);border-color:rgba(33,227,155,.9);background:linear-gradient(135deg,rgba(33,227,155,.16),rgba(255,255,255,.06))}.btn:disabled,.btn2:disabled{opacity:.55;cursor:not-allowed;transform:none}.btn{background:linear-gradient(135deg,#17d88c,#47f6b5);border-color:#5fffc1;color:#03110c;font-weight:800}.upload input{display:none}.menu{position:relative}.menuPanel{position:absolute;right:0;top:calc(100% + 8px);z-index:50;min-width:168px;padding:8px;border:1px solid rgba(135,255,209,.24);border-radius:14px;background:rgba(9,16,14,.96);box-shadow:0 22px 55px rgba(0,0,0,.45);display:none}.menu.open .menuPanel{display:grid;gap:7px}.menuPanel .upload,.menuPanel .btn2{width:100%;justify-content:flex-start;border-radius:10px}
+    .status{display:flex;gap:10px;flex-wrap:wrap;max-width:1380px;margin:12px auto 0;padding:0 18px;color:var(--muted)}.status span,.userChip{display:inline-flex;align-items:center;padding:7px 12px;border:1px solid rgba(135,255,209,.18);border-radius:999px;background:rgba(9,15,14,.62);backdrop-filter:blur(14px)}
+    .wrap{max-width:1380px;margin:22px auto;padding:0 18px 46px}.quickNav{position:sticky;top:95px;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 18px;padding:11px 13px;border:1px solid rgba(135,255,209,.22);border-radius:16px;background:rgba(10,16,15,.78);backdrop-filter:blur(18px);box-shadow:0 18px 40px rgba(0,0,0,.32)}.quickNav strong{color:#f4fffb;margin-right:6px}.navChip{display:inline-flex;align-items:center;min-height:34px;padding:8px 12px;border:1px solid rgba(135,255,209,.22);border-radius:999px;color:#c8f8e7;text-decoration:none;background:rgba(255,255,255,.04)}.navChip:hover{border-color:var(--green);color:#fff;background:rgba(33,227,155,.12)}
+    .band{position:relative;background:linear-gradient(135deg,rgba(20,29,27,.78),rgba(9,13,12,.86));border:1px solid rgba(135,255,209,.20);margin-bottom:22px;color:var(--paperText);box-shadow:0 30px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);border-radius:18px;overflow:hidden;scroll-margin-top:154px}.band::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 12% 0%,rgba(33,227,155,.18),transparent 36%),linear-gradient(90deg,rgba(135,255,209,.08),transparent 30%);opacity:.8}.head{position:relative;display:flex;align-items:center;justify-content:space-between;padding:17px 20px;background:rgba(4,19,13,.62);color:#f2fff9;border-bottom:1px solid rgba(135,255,209,.25)}.head h2{margin:0;font-size:18px;letter-spacing:.3px}
+    .grid{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(135,255,209,.14);padding:1px}.grid.default{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .field{min-height:76px;background:var(--field);padding:15px 17px}.field:nth-child(4n+2),.field:nth-child(4n+3){background:rgba(24,37,33,.82)}.field.salesRemark{grid-column:1/-1;background:linear-gradient(135deg,rgba(19,54,42,.72),rgba(17,29,26,.86))}.field.disabled{background:linear-gradient(135deg,rgba(19,38,33,.78),rgba(12,20,18,.78));border-left:3px solid rgba(135,255,209,.42)}.field.disabled .name::after{content:"展示项";margin-left:8px;padding:2px 7px;border:1px solid rgba(135,255,209,.25);border-radius:999px;color:#98c8b7;font-size:11px;font-weight:600}html[lang="en"] .field.disabled .name::after{content:"Read only"}.meta{min-height:24px;display:flex;justify-content:space-between;gap:8px;margin-bottom:7px}.name{font-weight:700;color:#f1fff9}.remark{font-size:12px;line-height:1.5;color:#97baad;margin:0 0 9px;white-space:pre-wrap}.req{color:#ff747b}
+    input[type=text],input[type=password],input[type=date],select,textarea{width:100%;border:1px solid rgba(135,255,209,.28);border-radius:10px;padding:11px 12px;min-height:44px;background:rgba(4,10,9,.72);color:#f5fffb;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}input::placeholder,textarea::placeholder{color:#7f978e}select option{background:#0d1714;color:#f5fffb}input:focus,select:focus,textarea:focus{outline:none;border-color:#45f5b3;box-shadow:0 0 0 3px rgba(33,227,155,.18),0 0 24px rgba(33,227,155,.12)}button:focus-visible,a:focus-visible,label.upload:focus-within{outline:3px solid rgba(33,227,155,.80);outline-offset:3px} textarea{resize:vertical;min-height:104px}
+    .readonly{white-space:pre-wrap;border:1px dashed rgba(135,255,209,.28);border-radius:10px;min-height:42px;padding:10px;background:rgba(8,18,15,.54);color:#cde9df}
+    .ghost{border:1px solid rgba(135,255,209,.30);background:rgba(255,255,255,.05);border-radius:999px;padding:7px 10px;color:#d9fff1;cursor:pointer}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:18px;background:rgba(7,12,11,.36)}.cards.single{grid-template-columns:1fr}.card{border:1px solid rgba(135,255,209,.22);background:linear-gradient(135deg,rgba(22,33,30,.84),rgba(10,14,13,.86));border-radius:16px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06)}.cardTitle{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(135,255,209,.18);background:rgba(18,46,36,.48);color:#eafff7}.card .field{border-bottom:1px solid rgba(135,255,209,.12)}
+    .thumbBox{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.thumb{width:210px;height:142px;object-fit:cover;border:1px solid rgba(135,255,209,.25);border-radius:12px}.guideImg{width:100%;max-width:320px;max-height:210px;object-fit:contain;display:block;margin:0 0 10px;border:1px solid rgba(135,255,209,.22);border-radius:12px;background:rgba(255,255,255,.92);cursor:pointer}.deviceGallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:14px;background:rgba(7,12,11,.50);border-bottom:1px solid rgba(135,255,209,.16)}.deviceGallery img{width:100%;height:200px;object-fit:contain;background:#f7faf8;border:1px solid rgba(135,255,209,.22);border-radius:12px;cursor:pointer}.empty{min-height:164px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#a4bdb4;background:rgba(8,13,12,.52);border:1px solid rgba(135,255,209,.18);border-radius:14px}
+    .modal{position:fixed;inset:0;background:rgba(0,8,5,.82);display:none;align-items:center;justify-content:center;padding:22px;z-index:40}.modal.show{display:flex}.modalInner{width:min(1180px,96vw);height:min(900px,94vh);display:grid;grid-template-rows:auto minmax(0,1fr);background:linear-gradient(135deg,#111a18,#050807);border:1px solid rgba(135,255,209,.26);border-radius:16px;overflow:hidden;color:#f2fff9;box-shadow:0 30px 100px rgba(0,0,0,.62)}.modalTitle{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(135,255,209,.20)}.modalTitle strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.modal img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
+    .loading,.toast{position:fixed;right:24px;bottom:24px;background:rgba(7,16,13,.92);color:#dffcf2;border:1px solid rgba(33,227,155,.45);border-radius:12px;padding:12px 16px;display:none;box-shadow:0 18px 44px rgba(0,0,0,.44)}.loading.show,.toast.show{display:block}.toast{bottom:78px}
+    .loginScreen{min-height:100vh;display:grid;place-items:center;padding:24px}.loginCard{width:min(440px,94vw);border:1px solid rgba(135,255,209,.24);border-radius:22px;background:linear-gradient(135deg,rgba(18,25,23,.88),rgba(8,12,11,.92));box-shadow:0 34px 120px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.08);padding:28px}.loginLogo{width:220px;height:54px;margin-bottom:24px}.loginLogo img{max-width:100%;max-height:100%;object-fit:contain}.loginCard h1{margin:0 0 8px;font-size:26px}.loginCard p{margin:0 0 22px;color:var(--muted)}.loginForm{display:grid;gap:14px}.loginForm .btn{width:100%;text-align:center}.loginError{min-height:20px;color:#ff8b90;font-size:13px}.loginScreen.isHidden{display:none}
+    @media(max-width:1180px){.top{grid-template-columns:1fr}.actions{justify-content:flex-start;flex-wrap:wrap}}
+    @media(max-width:860px){.top{position:relative;margin:0;border-radius:0;padding:20px}.brand{align-items:flex-start;flex-direction:column}.logoBox{width:180px}.quickNav{position:relative;top:auto}.grid,.grid.default,.cards{grid-template-columns:1fr}.wrap{padding:0 12px}.status{padding:0 12px}}
+    @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+    @media print{.skipLink,.top,.status,.quickNav,.actions,.ghost,.btn,.btn2,.upload,.toast{display:none!important}body{background:#fff}.wrap{margin:0;max-width:none}.band{break-inside:avoid}}
+  </style>
+</head>
+<body>
+  <a class="skipLink" href="#printArea">跳到配置内容</a>
+  <div id="loginScreen" class="loginScreen">
+    <section class="loginCard">
+      <div class="loginLogo"><img src="logo.png" alt="ForwardX Robotics"></div>
+      <h1 id="loginTitle">售前配置平台</h1>
+      <p id="loginSub">请输入账号密码继续</p>
+      <div class="loginForm">
+        <input id="loginUser" type="text" autocomplete="username" placeholder="用户名" aria-label="用户名">
+        <input id="loginPass" type="password" autocomplete="current-password" placeholder="密码" aria-label="密码">
+        <button class="btn" id="loginBtn">登录</button>
+        <div class="loginError" id="loginError" role="alert"></div>
+      </div>
+    </section>
+  </div>
+  <div id="appShell" class="appShell isHidden">
+  <header class="top">
+    <div class="brand"><div class="logoBox"><img src="logo.png" alt="Logo"></div><div><h1 id="appTitle">售前配置平台</h1></div></div>
+    <div class="actions">
+      <div class="menu" id="templateMenu">
+        <button class="btn2" id="templateMenuBtn" type="button" aria-expanded="false">模板</button>
+        <div class="menuPanel" id="templateMenuPanel">
+          <label class="upload">上传模板<input id="fileInput" type="file" accept=".xlsx,.xls"></label>
+          <button class="btn2" id="downloadTplBtn" aria-label="下载配置模板">下载模板</button>
+        </div>
+      </div>
+      <button class="btn2" id="clearBtn" aria-label="清空当前本地暂存">清空暂存</button>
+      <label class="upload">上传PDF恢复<input id="pdfInput" type="file" accept=".pdf"></label>
+      <button class="btn" id="pdfBtn" aria-label="导出PDF">导出 PDF</button>
+      <button class="btn2" id="langBtn" aria-label="切换语言">EN</button>
+      <button class="btn2" id="logoutBtn" aria-label="退出登录">退出</button>
+    </div>
+  </header>
+  <div class="status"><span id="fileStatus">正在加载默认模板...</span><span id="userStatus"></span></div>
+  <main id="printArea" class="wrap" tabindex="-1"></main>
+  <div id="loading" class="loading">正在解析模板...</div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="modal" class="modal"><div class="modalInner"><div class="modalTitle"><strong id="modalTitle"></strong><button class="ghost" id="modalClose">关闭</button></div><img id="modalImg" alt="配图"></div></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="pdf-font-simhei.js"></script>
+  <script>
+    const STORAGE_KEY = "presales-config-web-static-v1";
+    const RESTORE_PREFIX = "PRESALES_CONFIG_DRAFT:";
+    const AUTH_KEY = "presales-config-user";
+    const USERS = { TJ:"000000", LLL:"000000", LH:"000000", PRESALES:"000000", SALES:"000000" };
+    let lang = localStorage.getItem("presales-config-lang") || "zh";
+    const I18N = {
+      zh:{title:"售前配置平台",loginSub:"请输入账号密码继续",username:"用户名",password:"密码",login:"登录",loginFail:"用户名或密码错误",template:"模板",uploadTpl:"上传模板",uploadPdf:"上传PDF恢复",downloadTpl:"下载模板",clear:"清空暂存",clearConfirm:"确认清空当前暂存内容吗？此操作不会影响配置模板。",exportPdf:"导出 PDF",logout:"退出",loadingTpl:"正在加载默认模板...",tpl:"当前模板",restored:"已从PDF恢复",logged:"当前用户",series:"车型系列",model:"车型",chooseSeries:"请选择车型系列",chooseModel:"请选择车型",chooseModelFirst:"选择车型后展示配置内容",basic:"项目基本信息",sales:"售前配置项",power:"用电相关",pallet:"托盘",rack:"料架",defaults:"默认配置",pwdPrompt:"请输入下载密码",pwdWrong:"密码错误，无法下载模板。",tplDownloaded:"模板下载已开始",pdfGenerating:"生成中...",pdfDone:"PDF已生成",printHint:"已打开可打印表单，请在打印窗口选择“另存为 PDF”。",skip:"跳到配置内容",close:"关闭",uploadImage:"上传图片",delete:"删除",placeholder:"请输入",siteRemark:"现场特殊需求备注",siteRemarkHelp:"用于补充说明现场工况、客户特殊要求或其他需要研发关注的信息。",siteRemarkPh:"请输入现场特殊需求",need:"需要",noNeed:"无需",newItem:"新建",noNeedPrefix:"该项目无需"},
+      en:{title:"Presales Configuration",loginSub:"Sign in to continue",username:"Username",password:"Password",login:"Sign in",loginFail:"Invalid username or password",template:"Template",uploadTpl:"Upload Template",uploadPdf:"Restore PDF",downloadTpl:"Download Template",clear:"Clear Draft",clearConfirm:"Clear the current draft? This will not change the configuration template.",exportPdf:"Export PDF",logout:"Logout",loadingTpl:"Loading default template...",tpl:"Template",restored:"Restored from PDF",logged:"User",series:"Model Series",model:"Model",chooseSeries:"Select series",chooseModel:"Select model",chooseModelFirst:"Select a model to continue",basic:"Basic Info",sales:"Sales Options",power:"Power & Charging",pallet:"Pallet",rack:"Rack",defaults:"Default Configuration",pwdPrompt:"Enter download password",pwdWrong:"Wrong password. Template download blocked.",tplDownloaded:"Template download started",pdfGenerating:"Generating...",pdfDone:"PDF generated",printHint:"Printable form opened. Choose Save as PDF in the print dialog.",skip:"Skip to configuration",close:"Close",uploadImage:"Upload Image",delete:"Delete",placeholder:"Enter value",siteRemark:"Site Special Requirements",siteRemarkHelp:"Describe site conditions, customer-specific requirements, or engineering notes.",siteRemarkPh:"Describe special site requirements",need:"Add",noNeed:"No",newItem:"New",noNeedPrefix:"No configuration required for"}
+    };
+    const t = k => I18N[lang][k] || I18N.zh[k] || k;
+    const sectionNames = new Set(["项目基本信息","售前配置项","用电相关","托盘","料架","默认配置"]);
+    let config = null;
+    let draft = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"model":"","values":{},"repeaters":{}}');
+    let templateTranslations = {};
+    let currentTemplateBlob = null;
+    let currentTemplateName = "售前配置模板.xlsx";
+    const $ = id => document.getElementById(id);
+    const norm = v => v == null ? "" : String(v).trim();
+    const CONFIG_EN = {
+      "项目名称":"Project Name","商机号":"Opportunity ID","车型数量":"Vehicle Qty","发货时间":"Shipping Date","售前":"Presales Owner","车型":"Model","车型系列":"Model Series",
+      "红色示廓灯":"Red Clearance Light","蓝点灯":"Blue Spot Light","电源插头型号":"Power Plug Model","包装方式":"Packaging Method","货叉外宽要求":"Fork Outer Width Requirement","货叉长度要求":"Fork Length Requirement","举升高度要求":"Lift Height Requirement","横移":"Side Shift","叉尺间距可调":"Adjustable Fork Spacing","叉齿俯仰":"Fork Pitch Tilt","5G要求":"5G Requirement","下视二维码相机":"Downward QR Camera","托盘规格":"Pallet Specification","附加要求":"Additional Requirements","载重要求":"Load Capacity Requirement",
+      "现场电压":"Site Voltage","电源插座接口图片":"Power Socket Interface Photo","充电极板":"Charging Contacts","用电相关":"Power & Charging",
+      "托盘":"Pallet","料架":"Rack","托盘子类型":"Pallet Subtype","料架子类型":"Rack Subtype","托盘类型":"Pallet Type","料架类型":"Rack Type","川字托盘":"Open Deck Pallet","田字托盘":"Closed Deck Pallet","支腿托盘":"Legged Pallet","支腿料箱":"Legged Bin","托盘料箱":"Pallet Box","背负料架":"Lift Rack","牵引料架":"Tow Rack","潜伏牵引料架":"Under-run Tow Rack",
+      "叉取方向边长-W(mm)":"Fork-entry Side Length - W (mm)","非叉取方向边长-L(mm)":"Non-fork-entry Side Length - L (mm)","叉取方向两侧立柱宽-W1(mm)":"Outer Support Width - W1 (mm)","叉取方向中间立柱宽-W2(mm)":"Center Support Width - W2 (mm)","高-H(mm)":"Height - H (mm)","F 托盘下横梁高度":"F: Lower Deck Board Height","G 托盘下横梁高度":"G: Lower Deck Board Height","N GMA托盘避让孔后沿距边缘":"N: Rear Edge Clearance to GMA Relief Slot","O GMA托盘避让孔前沿距边缘":"O: Front Edge Clearance to GMA Relief Slot",
+      "驶入方向边长-W(mm)":"Drive-in Side Length - W (mm)","非驶入方向边长-L(mm)":"Non-drive-in Side Length - L (mm)","驶入方向支腿间距-S1(mm)":"Drive-in Leg Spacing - S1 (mm)","非驶入方向支腿间距-S2(mm)":"Non-drive-in Leg Spacing - S2 (mm)","驶入方向支腿边长-W1(mm)":"Drive-in Leg Width - W1 (mm)","非驶入方向支腿边长-W2(mm)":"Non-drive-in Leg Width - W2 (mm)","离地高度-H2(mm)":"Ground Clearance - H2 (mm)","宽边边长-W(mm)":"Short-side Length - W (mm)","长边边长-L(mm)":"Long-side Length - L (mm)","宽边支腿间距-S1(mm)":"Short-side Leg Spacing - S1 (mm)","长边支腿间距-S2(mm)":"Long-side Leg Spacing - S2 (mm)","宽边支腿边长-W1(mm)":"Short-side Leg Width - W1 (mm)","长边支腿边长-W2(mm)":"Long-side Leg Width - W2 (mm)","高-H1(mm)":"Height - H1 (mm)",
+      "工控":"Industrial PC","电机":"Motor","驱动器":"Drive Controller","举升":"Lift","电池":"Battery","无线网卡":"Wireless NIC","安全PLC":"Safety PLC","前雷达":"Front LiDAR","后雷达":"Rear LiDAR","左雷达":"Left LiDAR","右雷达":"Right LiDAR","前居中雷达":"Front Center LiDAR","后居中雷达":"Rear Center LiDAR","叉齿中间雷达":"Fork Center LiDAR","多线雷达":"Multi-line LiDAR","防撞条":"Bumper Strip","鱼眼相机":"Fisheye Camera","相机":"Camera","RGBD相机":"RGB-D Camera","Marker相机":"Marker Camera","车头拍照相机":"Front Snapshot Camera","车头鱼眼相机":"Front Fisheye Camera","车头RGBD相机":"Front RGB-D Camera","屏幕（组态屏）":"HMI Display","屏幕（业务屏）":"Operations Display","屏幕":"Display","语音播报器":"Voice Announcer","一字行车灯":"Linear Running Light","一字灯":"Linear Clearance Light","编码器类型":"Encoder Type","光编":"Optical Encoder","磁编":"Magnetic Encoder","减速机减速比":"Reducer Ratio","急停按钮":"Emergency Stop Button","释放按钮":"Release Button","电源按钮":"Power Button","牵引棒升降按钮":"Tow Bar Lift Button","手自动切换按钮":"Manual/Auto Switch","紧急救援接口":"Emergency Rescue Port","紧急救援按钮":"Emergency Rescue Button","解抱闸按钮":"Brake Release Button","空开":"Circuit Breaker","遥控器":"Remote Controller","遥控手柄，用于AMR遥控":"Remote Controller for AMR Operation","二维码读码器":"QR Code Reader","条形码读码器":"Barcode Reader","拉绳编码器":"Draw-wire Encoder","叉尖传感器":"Fork-tip Sensor","称重传感器":"Weighing Sensor","托盘到位检测开关":"Pallet In-position Switch","托盘离位检测开关":"Pallet Out-of-position Switch","上视二维码相机":"Upward QR Camera","下视二维码相机（导航）":"Downward QR Camera (Navigation)","远程运维相机":"Remote O&M Camera","相对检测相机":"Relative Positioning Camera","牵引机构":"Tow Mechanism","牵引电机":"Tow Motor","TSA模组":"TSA Module","宝莲灯模组":"TSA Module",
+      "不需要":"Not Required","需要":"Required","不可选配":"Not Configurable","不可修改，仅展示":"Read-only","售前填写":"Presales Input","文字输入框":"Text Input","下拉选择":"Dropdown","是":"Yes","否":"No","有":"Yes","无":"No","木箱":"Wooden Crate","铁箱":"Steel Crate","侧充":"Side Charging","地充":"Floor Charging","正充":"Front Charging","标配":"Standard","选配":"Optional","待确定":"TBD","客户无需":"Not Required by Customer","灵动标准色":"ForwardX Standard Color","灵动灰":"ForwardX Gray","灵动白":"ForwardX White","红色":"Red","蓝色":"Blue","黄色":"Yellow",
+      "米玛车体":"Mima Chassis","自研":"In-house","自研二代":"In-house Gen 2","自研三代":"In-house Gen 3","和利时":"HollySys","步科":"Kinco","液压":"Hydraulic","双编":"Dual Encoder","蓝海":"Leishen","蓝海50C-E":"Leishen 50C-E","科力安全雷达":"Keli Safety LiDAR","北洋安全雷达":"Hokuyo Safety LiDAR","基恩士":"Keyence","康仕达":"Constar","布瑞特":"Briter","艾吉威":"AGVWAY","万集719":"VanJee 719","惠恩士":"Keyence",
+      "项目基本信息":"Basic Info","售前配置项":"Sales Options","默认配置":"Default Configuration","展示分区":"Display Section","输入类型":"Input Type","必填":"Required","备注":"Notes","配置项":"Configuration Item","内容":"Content","案例图片":"Reference Image","配图":"Reference Image","查看配图":"View Image","如现场对网络有特殊需求的场景":"Use when the site has special network requirements.","标配对接相机":"Standard Docking Camera","选配导航相机":"Optional Navigation Camera","对接相机":"Docking Camera","导航相机":"Navigation Camera","高精度对接":"High-precision docking","二维码导航":"QR-code navigation","叉车":"forklift","AMR车型":"AMR model","填写":"Enter","参数":"parameters","尺寸":"dimensions","现场":"site","特殊需求":"special requirements"
+    };
+    const HAS_ZH = /[\u2e80-\u2fff\u3400-\u9fff]/;
+    function labelText(v){
+      let text = norm(v).normalize("NFKC").replaceAll("遥控手柄，用于AME遥控","遥控手柄，用于AMR遥控").replaceAll("⽅","方").replaceAll("⻓","长");
+      if(lang !== "en" || !text) return text;
+      if(templateTranslations[text]) return templateTranslations[text];
+      if(text === ", AME") return "Remote Controller for AMR Operation";
+      text = text.replace(/[；]/g,";").replace(/[（]/g,"(").replace(/[）]/g,")").replace(/[：]/g,": ");
+      if(CONFIG_EN[text]) return CONFIG_EN[text];
+      let out = text;
+      Object.entries(CONFIG_EN).sort((a,b)=>b[0].length-a[0].length).forEach(([zh,en]) => { out = out.replaceAll(zh,en); });
+      out = out.replace(/Apex C1500-L\(Lift([^)]+)\)/g,"Apex C1500-L (Lift $1)")
+        .replace(/Apex C1500-L\(举升([^)]+)\)/g,"Apex C1500-L (Lift $1)")
+        .replace(/(\d)寸/g,"$1-inch")
+        .replace(/(\d+)个/g,"$1 pcs")
+        .replace(/\s*;\s*/g,"; ")
+        .replace(/\s*,\s*/g,", ")
+        .replace(/:\s*/g,": ")
+        .replace(/RequiredSteel/g,"Required Steel")
+        .replace(/AMRPalletPallet, PalletAMR。?/g,"AMR pallet docking parameters")
+        .replace(/High-precision docking\s*Rack/g,"High-precision docking for rack")
+        .replace(/Camera\s*QR-code/g,"camera. QR-code")
+        .replace(/Required\s*QR-code/g,"requires QR-code")
+        .replace(/[，、]/g,", ")
+        .replace(/\s+/g," ")
+        .trim();
+      if(HAS_ZH.test(out)) out = out.replace(/[\u3400-\u9fff]+/g,"").replace(/\s+/g," ").trim() || "Custom Item";
+      return out;
+    }
+    const splitOptions = v => norm(v).replaceAll(";","；").split("；").map(x=>x.trim()).filter(Boolean);
+    const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    const keyOf = (prefix, name, id="") => `${prefix}::${name}${id ? "::"+id : ""}`;
+    const currentUser = () => localStorage.getItem(AUTH_KEY) || "";
+    function modelSeries(model){
+      const m = norm(model);
+      if(!m) return "";
+      const first = m.split(/\s+/)[0];
+      return ["Apex","Flex","Max","Lynx"].includes(first) ? first : first.replace(/[（(].*/,"");
+    }
+    function seriesList(){
+      return [...new Set((config?.models || []).map(modelSeries).filter(Boolean))];
+    }
+    function modelsBySeries(series){
+      return (config?.models || []).filter(m => modelSeries(m) === series);
+    }
+    function applyLanguage(){
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      $("loginTitle").textContent = t("title");
+      $("loginSub").textContent = t("loginSub");
+      $("loginUser").placeholder = t("username");
+      $("loginPass").placeholder = t("password");
+      $("loginUser").setAttribute("aria-label", t("username"));
+      $("loginPass").setAttribute("aria-label", t("password"));
+      $("loginBtn").textContent = t("login");
+      $("appTitle").textContent = t("title");
+      document.title = t("title");
+      $("templateMenuBtn").textContent = t("template");
+      $("langBtn").textContent = lang === "zh" ? "EN" : "ZH";
+      $("langBtn").setAttribute("aria-label", lang === "zh" ? "Switch to English" : "Switch to Chinese");
+      document.querySelector(".skipLink").textContent = t("skip");
+      const labels = document.querySelectorAll(".upload");
+      if(labels[0]) labels[0].childNodes[0].nodeValue = t("uploadTpl");
+      if(labels[1]) labels[1].childNodes[0].nodeValue = t("uploadPdf");
+      $("downloadTplBtn").textContent = t("downloadTpl");
+      $("downloadTplBtn").setAttribute("aria-label", t("downloadTpl"));
+      $("clearBtn").textContent = t("clear");
+      $("clearBtn").setAttribute("aria-label", t("clear"));
+      $("pdfBtn").textContent = t("exportPdf");
+      $("pdfBtn").setAttribute("aria-label", t("exportPdf"));
+      $("logoutBtn").textContent = t("logout");
+      $("logoutBtn").setAttribute("aria-label", t("logout"));
+      $("modalClose").textContent = t("close");
+      if(config) $("fileStatus").textContent = `${t("tpl")}: ${displayFileName(config.fileName)}`;
+      else $("fileStatus").textContent = t("loadingTpl");
+      $("userStatus").textContent = currentUser() ? `${t("logged")}: ${currentUser()}` : "";
+      $("loading").textContent = t("loadingTpl");
+    }
+    function displayFileName(name){
+      if(lang === "en" && HAS_ZH.test(norm(name))) return "Default configuration template.xlsx";
+      return norm(name);
+    }
+    function updateAuthUI(){
+      const authed = !!currentUser();
+      $("loginScreen").classList.toggle("isHidden", authed);
+      $("appShell").classList.toggle("isHidden", !authed);
+      applyLanguage();
+    }
+    if(window.pdfjsLib){
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+    }
+    function encodeDraft(){
+      const payload = JSON.stringify({ version:1, savedAt:new Date().toISOString(), draft });
+      return btoa(unescape(encodeURIComponent(payload)));
+    }
+    function decodeDraft(text){
+      const compact = text.replace(/\s+/g,"");
+      const start = compact.indexOf(RESTORE_PREFIX);
+      if(start < 0) return null;
+      const body = compact.slice(start + RESTORE_PREFIX.length).match(/[A-Za-z0-9+/=]+/)?.[0] || "";
+      return JSON.parse(decodeURIComponent(escape(atob(body))));
+    }
+    function safeFileName(text){
+      return norm(text).replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g," ").trim();
+    }
+    function exportFileName(){
+      const project = draft.values[keyOf("main","项目名称")] || "";
+      const model = draft.model || "未选车型";
+      return `${safeFileName(project) || "售前配置"}_${safeFileName(model)}.pdf`;
+    }
+    function downloadBlob(blob, fileName){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+    }
+    async function parseCellImages(file){
+      const zip = await JSZip.loadAsync(file);
+      const imgXml = zip.file("xl/cellimages.xml");
+      const relXml = zip.file("xl/_rels/cellimages.xml.rels");
+      if(!imgXml || !relXml) return {};
+      const [imgText, relText] = await Promise.all([imgXml.async("text"), relXml.async("text")]);
+      const relMap = {};
+      [...relText.matchAll(/<Relationship[^>]*Id="([^"]+)"[^>]*Target="([^"]+)"/g)].forEach(m => relMap[m[1]] = "xl/" + m[2]);
+      const out = {};
+      const blocks = imgText.match(/<etc:cellImage[\s\S]*?<\/etc:cellImage>/g) || [];
+      for(const block of blocks){
+        const id = block.match(/<xdr:cNvPr[^>]*name="([^"]+)"/)?.[1];
+        const rid = block.match(/r:embed="([^"]+)"/)?.[1];
+        const target = relMap[rid];
+        if(id && target && zip.file(target)){
+          const blob = await zip.file(target).async("blob");
+          out[id] = URL.createObjectURL(blob);
+        }
+      }
+      return out;
+    }
+
+    function imageId(v){ return norm(v).match(/DISPIMG\("([^"]+)"/)?.[1] || ""; }
+    function parseDevices(wb, images){
+      const sheet = wb.Sheets["对接设备"];
+      if(!sheet) return {};
+      const matrix = XLSX.utils.sheet_to_json(sheet, { header:1, defval:"" }).map(r => r.map(norm));
+      const headers = matrix[0] || [];
+      const devices = {};
+      matrix.slice(1).forEach((cells, idx) => {
+        const type = cells[0], subtype = cells[1];
+        if(!type || !subtype) return;
+        const translation = cells[2] || "";
+        const mainImage = images[imageId(cells[3])] || "";
+        const item = { id:`device-${idx}-${type}-${subtype}`, type, subtype, translation, images:[], fields:[] };
+        if(mainImage) item.images.push({ title:`${subtype}案例图片`, url:mainImage });
+        let currentImage = "";
+        for(let c=4;c<headers.length;c++){
+          const header = headers[c] || "";
+          const value = cells[c] || "";
+          if(header.includes("配图")){
+            const img = images[imageId(value)] || "";
+            currentImage = img;
+            if(img) item.images.push({ title:header, url:img });
+            continue;
+          }
+          if(!header.startsWith("填写项")) continue;
+          if(!value || value === "/") continue;
+          item.fields.push({ name:value, imageUrl:currentImage });
+        }
+        if(!devices[type]) devices[type] = [];
+        devices[type].push(item);
+      });
+      return devices;
+    }
+    function parseTranslations(wb){
+      const sheet = wb.Sheets["英文翻译"] || wb.Sheets["????"];
+      if(!sheet) return {};
+      const matrix = XLSX.utils.sheet_to_json(sheet, { header:1, defval:"" }).map(r => r.map(norm));
+      const out = {};
+      matrix.slice(1).forEach(cells => {
+        const zh = cells[0], en = cells[1];
+        if(zh && en) out[zh.normalize("NFKC")] = en;
+      });
+      return out;
+    }
+
+    async function parseWorkbook(file){
+      $("loading").classList.add("show");
+      try{
+        currentTemplateBlob = file;
+        currentTemplateName = file.name || currentTemplateName;
+        const [buffer, images] = await Promise.all([file.arrayBuffer(), parseCellImages(file)]);
+        const wb = XLSX.read(buffer, { type:"array", cellFormula:true, cellNF:false, cellText:false });
+        const sheet = wb.Sheets["配置数据库"] || wb.Sheets[wb.SheetNames[0]];
+        const matrix = XLSX.utils.sheet_to_json(sheet, { header:1, defval:"" }).map(r => r.map(norm));
+        let group = "", models = [], modelStart = 6;
+        const rows = [];
+        matrix.forEach((cells, idx) => {
+          const name = cells[0];
+          if(!name) return;
+          if(sectionNames.has(name)){
+            group = name;
+            if(name === "售前配置项"){
+              modelStart = 6;
+              models = cells.slice(modelStart).filter(Boolean);
+            }
+            return;
+          }
+          const img = imageId(cells[1]);
+          const row = { id: `${idx}-${name}`, name, group, imageUrl: images[img] || "", displaySection: cells[2], inputType: cells[3], required: cells[4] === "是", remark: cells[5], values:{} };
+          if(group !== "项目基本信息") models.forEach((m,i)=> row.values[m] = cells[modelStart+i] || "");
+          rows.push(row);
+        });
+        templateTranslations = parseTranslations(wb);
+        config = { fileName:file.name, models, rows, devices:parseDevices(wb, images) };
+        if(!config.models.includes(draft.model)) draft.model = "";
+        $("fileStatus").textContent = `${t("tpl")}: ${displayFileName(currentTemplateName)}`;
+        save(); render();
+      } finally {
+        $("loading").classList.remove("show");
+      }
+    }
+
+    function rows(group, section){
+      if(!config) return [];
+      return config.rows.filter(r => {
+        if(r.group !== group) return false;
+        if(group === "用电相关" || group === "托盘" || group === "料架") return true;
+        if(section && r.displaySection !== section) return false;
+        if(group === "项目基本信息" || group === "用电相关" || group === "托盘" || group === "料架") return true;
+        return norm(r.values[draft.model]) !== "";
+      });
+    }
+
+    function remark(text){ return text ? `<div class="remark">${escapeHtml(text)}</div>` : ""; }
+    function escapeHtml(s){ return norm(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function showToast(text){
+      const el = $("toast");
+      el.textContent = text;
+      el.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => el.classList.remove("show"), 3600);
+    }
+    function isTractionRack(cardId){
+      return draft.values[keyOf("料架","料架类型",cardId)] === "牵引料架";
+    }
+    function visibleRepeaterRows(title, listRows, cardId){
+      if(title !== "料架" || !isTractionRack(cardId)) return listRows;
+      return listRows.filter(r =>
+        r.name === "料架类型" ||
+        r.name.includes("驶入方向边长-W") ||
+        r.name.includes("非驶入方向边长-L")
+      );
+    }
+    function deviceField(row, title, cardId, suppressImages=false){
+      const k = keyOf(title, row.name, cardId);
+      const val = draft.values[k] || "";
+      const name = labelText(row.name);
+      const imagePreview = row.imageUrl && !suppressImages ? `<img class="guideImg" src="${row.imageUrl}" alt="${escapeHtml(name)}" data-img="${row.imageUrl}" data-title="${escapeHtml(name)}">` : "";
+      return `<div class="field">${imagePreview}<div class="meta"><div><div class="name">${escapeHtml(name)}<span class="req">*</span></div></div></div><input type="text" data-key="${k}" aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${t("placeholder")}"></div>`;
+    }
+    function sectionId(title){
+      return title === "托盘" ? "pallet" : title === "料架" ? "rack" : "";
+    }
+    function sectionTitle(title){
+      return title === "托盘" ? t("pallet") : title === "料架" ? t("rack") : title;
+    }
+
+    function field(row, prefix="main", cardId="", disabled=false){
+      const k = keyOf(prefix,row.name,cardId);
+      const raw = row.group === "项目基本信息" ? "" : norm(row.values[draft.model]);
+      const val = draft.values[k] ?? (splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw);
+      const showGuide = row.imageUrl && (row.group === "托盘" || row.group === "料架");
+      const name = labelText(row.name);
+      const imageBtn = row.imageUrl ? `<button class="ghost" data-img="${row.imageUrl}" data-title="${escapeHtml(name)}">${labelText("查看配图")}</button>` : "";
+      const imagePreview = showGuide ? `<img class="guideImg" src="${row.imageUrl}" alt="${escapeHtml(name)}" data-img="${row.imageUrl}" data-title="${escapeHtml(name)}">` : "";
+      let control = "";
+      if(disabled){
+        control = `<div class="readonly">${escapeHtml(labelText(raw) || "-")}</div>`;
+      }else if(row.inputType.includes("附件")){
+        const has = val && typeof val === "object" && val.dataUrl;
+        control = `<div class="thumbBox"><label class="upload">${t("uploadImage")}<input type="file" accept="image/*" data-file="${k}" aria-label="${escapeHtml(name)}"></label>${has ? `<img class="thumb" src="${val.dataUrl}" alt="${escapeHtml(val.name||"Attachment")}"><button class="ghost" data-clear-file="${k}" aria-label="${t("delete")} ${escapeHtml(name)}">${t("delete")}</button>` : ""}</div>`;
+      }else if(row.inputType.includes("下拉") && splitOptions(raw).length > 1){
+        control = `<select data-key="${k}" aria-label="${escapeHtml(name)}">${splitOptions(raw).map(o=>`<option value="${escapeHtml(o)}" ${o===val?"selected":""}>${escapeHtml(labelText(o))}</option>`).join("")}</select>`;
+      }else{
+        const isDate = row.name.includes("时间");
+        const type = isDate && lang !== "en" ? "date" : "text";
+        const placeholder = isDate && lang === "en" ? "YYYY-MM-DD" : t("placeholder");
+        control = `<input type="${type}" data-key="${k}" aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${placeholder}">`;
+      }
+      return `<div class="field ${disabled?"disabled":""}">${showGuide ? imagePreview : ""}<div class="meta"><div><div class="name">${escapeHtml(name)}${row.required?'<span class="req">*</span>':""}</div>${remark(labelText(row.remark))}</div>${showGuide ? "" : imageBtn}</div>${showGuide ? "" : imagePreview}${control}</div>`;
+    }
+    function salesRemarkCard(){
+      const k = keyOf("main","现场特殊需求备注");
+      const val = draft.values[k] || "";
+      return `<div class="field salesRemark"><div class="meta"><div><div class="name">${t("siteRemark")}</div><div class="remark">${t("siteRemarkHelp")}</div></div></div><textarea data-key="${k}" aria-label="${t("siteRemark")}" placeholder="${t("siteRemarkPh")}">${escapeHtml(labelText(val))}</textarea></div>`;
+    }
+
+    function repeater(title, listRows){
+      const ids = draft.repeaters[title] || ["1"];
+      draft.repeaters[title] = ids;
+      const skipped = draft.repeaters[`${title}::skip`] === true;
+      const action = skipped
+        ? `<button class="btn" data-need="${title}">${t("need")} ${sectionTitle(title)}</button>`
+        : `<button class="btn2" data-skip="${title}">${t("noNeed")} ${sectionTitle(title)}</button><button class="btn" data-add="${title}">${t("newItem")} ${sectionTitle(title)}</button>`;
+      const body = skipped
+        ? `<div class="empty"><strong>${t("noNeedPrefix")} ${sectionTitle(title)}</strong></div>`
+        : `<div class="cards ${ids.length===1?"single":""}">${ids.map((id,idx)=>`<div class="card"><div class="cardTitle"><strong>${sectionTitle(title)}${idx+1}</strong>${ids.length>1?`<button class="ghost" data-remove="${title}" data-id="${id}">${t("delete")}</button>`:""}</div>${visibleRepeaterRows(title,listRows,id).map(r=>field(r,title,id)).join("")}</div>`).join("")}</div>`;
+      return `<section class="band" id="${sectionId(title)}"><div class="head"><h2>${sectionTitle(title)}</h2><div class="actions">${action}</div></div>${body}</section>`;
+    }
+    function deviceRepeater(title){
+      const list = config?.devices?.[title] || [];
+      if(!list.length) return "";
+      const ids = draft.repeaters[title] || ["1"];
+      draft.repeaters[title] = ids;
+      const skipped = draft.repeaters[`${title}::skip`] === true;
+      const action = skipped
+        ? `<button class="btn" data-need="${title}">${t("need")} ${sectionTitle(title)}</button>`
+        : `<button class="btn2" data-skip="${title}">${t("noNeed")} ${sectionTitle(title)}</button><button class="btn" data-add="${title}">${t("newItem")} ${sectionTitle(title)}</button>`;
+      const body = skipped ? `<div class="empty"><strong>${t("noNeedPrefix")} ${sectionTitle(title)}</strong></div>` : `<div class="cards ${ids.length===1?"single":""}">${ids.map((id,idx)=>{
+        const subtypeKey = keyOf(title,"子类型",id);
+        const selectedName = draft.values[subtypeKey] || list[0].subtype;
+        const selected = list.find(x => x.subtype === selectedName) || list[0];
+        const gallery = selected.images.length ? `<div class="deviceGallery">${selected.images.map(img=>`<img src="${img.url}" alt="${escapeHtml(labelText(img.title))}" data-img="${img.url}" data-title="${escapeHtml(labelText(img.title))}">`).join("")}</div>` : "";
+        const subtypeLabel = `${sectionTitle(title)} ${lang === "en" ? "Subtype" : "子类型"}`;
+        const selectedRemark = lang === "en" ? (selected.translation || labelText(selected.subtype)) : selected.translation;
+        const selector = `<div class="field"><div class="meta"><div><div class="name">${subtypeLabel}<span class="req">*</span></div>${selectedRemark ? `<div class="remark">${escapeHtml(labelText(selectedRemark))}</div>` : ""}</div></div><select data-device-subtype="${title}" data-card="${id}" data-key="${subtypeKey}" aria-label="${subtypeLabel}">${list.map(item=>{
+          const optionText = lang === "en" ? (item.translation || labelText(item.subtype)) : `${item.subtype}${item.translation?` / ${item.translation}`:""}`;
+          return `<option value="${escapeHtml(item.subtype)}" ${item.subtype===selected.subtype?"selected":""}>${escapeHtml(labelText(optionText))}</option>`;
+        }).join("")}</select></div>`;
+        return `<div class="card"><div class="cardTitle"><strong>${sectionTitle(title)}${idx+1}</strong>${ids.length>1?`<button class="ghost" data-remove="${title}" data-id="${id}">${t("delete")}</button>`:""}</div>${gallery}<div class="grid">${selector}${selected.fields.map(r=>deviceField(r,title,id,true)).join("")}</div></div>`;
+      }).join("")}</div>`;
+      return `<section class="band" id="${sectionId(title)}"><div class="head"><h2>${sectionTitle(title)}</h2><div class="actions">${action}</div></div>${body}</section>`;
+    }
+
+    function render(){
+      const root = $("printArea");
+      if(!config){ root.innerHTML = `<section class="empty"><strong>${lang === "en" ? "Upload a configuration template to start" : "请上传售前配置模板"}</strong></section>`; return; }
+      const basic = rows("项目基本信息").filter(r=>r.name!=="车型");
+      const selectedSeries = draft.series || modelSeries(draft.model);
+      const seriesOptions = seriesList();
+      const filteredModels = selectedSeries ? modelsBySeries(selectedSeries) : [];
+      if(draft.model && selectedSeries && !filteredModels.includes(draft.model)) draft.model = "";
+      const seriesSelect = `<div class="field"><div class="meta"><div class="name">${t("series")}<span class="req">*</span></div></div><select id="seriesSelect" aria-label="${t("series")}"><option value="">${t("chooseSeries")}</option>${seriesOptions.map(s=>`<option value="${escapeHtml(s)}" ${selectedSeries===s?"selected":""}>${escapeHtml(labelText(s))}</option>`).join("")}</select></div>`;
+      const modelSelect = `<div class="field"><div class="meta"><div class="name">${t("model")}<span class="req">*</span></div></div><select id="modelSelect" aria-label="${t("model")}" ${selectedSeries?"":"disabled"}><option value="">${t("chooseModel")}</option>${filteredModels.map(m=>`<option value="${escapeHtml(m)}" ${draft.model===m?"selected":""}>${escapeHtml(labelText(m))}</option>`).join("")}</select></div>`;
+      let html = `<section class="band" id="basic"><div class="head"><h2>${t("basic")}</h2></div><div class="grid">${basic.map(r=>field(r)).join("")}${seriesSelect}${modelSelect}</div></section>`;
+      if(!draft.model){ root.innerHTML = html + `<section class="empty"><strong>${t("chooseModelFirst")}</strong></section>`; bind(); return; }
+      html += `<nav class="quickNav"><strong>${escapeHtml(labelText(draft.model))}</strong><a class="navChip" href="#basic">${t("basic")}</a><a class="navChip" href="#sales">${t("sales")}</a><a class="navChip" href="#power">${t("power")}</a><a class="navChip" href="#pallet">${t("pallet")}</a><a class="navChip" href="#rack">${t("rack")}</a><a class="navChip" href="#defaultConfig">${t("defaults")}</a></nav>`;
+      const sales = rows("售前配置项","售前填写");
+      const power = rows("用电相关","售前填写");
+      const pallet = rows("托盘","售前填写");
+      const rack = rows("料架","售前填写");
+      const def = rows("默认配置","默认配置");
+      html += `<section class="band" id="sales"><div class="head"><h2>${t("sales")}</h2></div><div class="grid">${salesRemarkCard()}${sales.map(r=>field(r)).join("")}</div></section>`;
+      html += `<section class="band" id="power"><div class="head"><h2>${t("power")}</h2></div><div class="grid">${power.map(r=>field(r)).join("")}</div></section>`;
+      if(config.devices?.["托盘"]?.length) html += deviceRepeater("托盘");
+      else if(pallet.length) html += repeater("托盘", pallet);
+      if(config.devices?.["料架"]?.length) html += deviceRepeater("料架");
+      else if(rack.length) html += repeater("料架", rack);
+      html += `<section class="band" id="defaultConfig"><div class="head"><h2>${t("defaults")}</h2></div><div class="grid default">${def.map(r=>field(r,"main","",true)).join("")}</div></section>`;
+      root.innerHTML = html; bind(); save();
+    }
+
+    function bind(){
+      document.querySelectorAll("[data-key]").forEach(el => el.oninput = el.onchange = e => {
+        draft.values[e.target.dataset.key] = e.target.value;
+        save();
+        if(e.target.dataset.key.startsWith("料架::料架类型::") || e.target.dataset.deviceSubtype) render();
+      });
+      document.querySelectorAll("[data-file]").forEach(el => el.onchange = e => {
+        const f = e.target.files[0]; if(!f) return; const reader = new FileReader();
+        reader.onload = () => { draft.values[e.target.dataset.file] = { name:f.name, dataUrl:reader.result }; save(); render(); };
+        reader.readAsDataURL(f);
+      });
+      document.querySelectorAll("[data-clear-file]").forEach(el => el.onclick = () => { delete draft.values[el.dataset.clearFile]; save(); render(); });
+      document.querySelectorAll("[data-add]").forEach(el => el.onclick = () => { const t=el.dataset.add; draft.repeaters[t] = [...(draft.repeaters[t]||[]), String(Date.now())]; save(); render(); });
+      document.querySelectorAll("[data-skip]").forEach(el => el.onclick = () => { const t=el.dataset.skip; draft.repeaters[`${t}::skip`] = true; save(); render(); });
+      document.querySelectorAll("[data-need]").forEach(el => el.onclick = () => { const t=el.dataset.need; draft.repeaters[`${t}::skip`] = false; if(!(draft.repeaters[t]||[]).length) draft.repeaters[t] = ["1"]; save(); render(); });
+      document.querySelectorAll("[data-remove]").forEach(el => el.onclick = () => { const t=el.dataset.remove; draft.repeaters[t] = (draft.repeaters[t]||[]).filter(x=>x!==el.dataset.id); save(); render(); });
+      document.querySelectorAll("[data-img]").forEach(el => el.onclick = () => { $("modalImg").src=el.dataset.img; $("modalTitle").textContent=el.dataset.title; $("modal").classList.add("show"); });
+      const ss = $("seriesSelect"); if(ss) ss.onchange = e => { draft.series = e.target.value; draft.model = ""; save(); render(); };
+      const ms = $("modelSelect"); if(ms) ms.onchange = e => { draft.model = e.target.value; draft.series = modelSeries(draft.model); save(); render(); };
+    }
+    function displayDraftValue(key, fallback=""){
+      const val = draft.values[key];
+      if(val && typeof val === "object") return val.name || "Attachment";
+      return labelText(val ?? fallback ?? "");
+    }
+    function rowExportValue(row, prefix="main", cardId="", disabled=false){
+      const key = keyOf(prefix, row.name, cardId);
+      const raw = row.group === "项目基本信息" ? "" : norm(row.values[draft.model]);
+      const fallback = splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw;
+      return disabled ? labelText(raw || "-") : displayDraftValue(key, fallback);
+    }
+    function reportTable(title, items){
+      if(!items.length) return "";
+      const rowsHtml = items.map(item => `<tr><th>${escapeHtml(item.name)}</th><td>${escapeHtml(item.value || "-")}</td><td>${escapeHtml(item.remark || "")}</td></tr>`).join("");
+      return `<section><h2>${escapeHtml(title)}</h2><table><thead><tr><th>${lang==="en"?"Item":"项目"}</th><th>${lang==="en"?"Value":"内容"}</th><th>${lang==="en"?"Notes":"备注"}</th></tr></thead><tbody>${rowsHtml}</tbody></table></section>`;
+    }
+    function exportRows(group, section, disabled=false){
+      return rows(group, section).map(r => ({
+        name: labelText(r.name),
+        value: rowExportValue(r, "main", "", disabled),
+        remark: labelText(r.remark)
+      }));
+    }
+    function exportDeviceSection(title){
+      if(draft.repeaters[`${title}::skip`] === true) return reportTable(sectionTitle(title), [{ name: sectionTitle(title), value: `${t("noNeedPrefix")} ${sectionTitle(title)}`, remark: "" }]);
+      const list = config?.devices?.[title] || [];
+      const ids = draft.repeaters[title] || ["1"];
+      if(list.length){
+        return ids.map((id,idx) => {
+          const subtypeKey = keyOf(title,"子类型",id);
+          const selectedName = draft.values[subtypeKey] || list[0].subtype;
+          const selected = list.find(x => x.subtype === selectedName) || list[0];
+          const items = [{ name: `${sectionTitle(title)} ${lang==="en"?"Subtype":"子类型"}`, value: labelText(selected.translation || selected.subtype), remark: "" }]
+            .concat(selected.fields.map(r => ({ name: labelText(r.name), value: displayDraftValue(keyOf(title,r.name,id)), remark: "" })));
+          return reportTable(`${sectionTitle(title)} ${idx+1}`, items);
+        }).join("");
+      }
+      const listRows = title === "托盘" ? rows("托盘","售前填写") : rows("料架","售前填写");
+      return ids.map((id,idx) => reportTable(`${sectionTitle(title)} ${idx+1}`, visibleRepeaterRows(title,listRows,id).map(r => ({
+        name: labelText(r.name),
+        value: rowExportValue(r,title,id),
+        remark: labelText(r.remark)
+      })))).join("");
+    }
+    function collectReportSections(){
+      const basicItems = rows("项目基本信息").filter(r=>r.name!=="车型").map(r => ({ name: labelText(r.name), value: displayDraftValue(keyOf("main",r.name)), remark: labelText(r.remark) }))
+        .concat([{ name:t("series"), value:labelText(modelSeries(draft.model)), remark:"" }, { name:t("model"), value:labelText(draft.model), remark:"" }]);
+      const siteRemark = displayDraftValue(keyOf("main","现场特殊需求备注"));
+      const salesItems = [{ name:t("siteRemark"), value:siteRemark, remark:t("siteRemarkHelp") }].concat(exportRows("售前配置项","售前填写"));
+      const sections = [
+        { title:t("basic"), items:basicItems },
+        { title:t("sales"), items:salesItems },
+        { title:t("power"), items:exportRows("用电相关","售前填写") },
+        { title:t("defaults"), items:exportRows("默认配置","默认配置",true) }
+      ];
+      return { basicItems, salesItems, sections };
+    }
+    function deviceReportSections(title){
+      if(draft.repeaters[`${title}::skip`] === true) return [{ title:sectionTitle(title), items:[{ name: sectionTitle(title), value: `${t("noNeedPrefix")} ${sectionTitle(title)}`, remark: "" }] }];
+      const list = config?.devices?.[title] || [];
+      const ids = draft.repeaters[title] || ["1"];
+      if(list.length){
+        return ids.map((id,idx) => {
+          const subtypeKey = keyOf(title,"子类型",id);
+          const selectedName = draft.values[subtypeKey] || list[0].subtype;
+          const selected = list.find(x => x.subtype === selectedName) || list[0];
+          const items = [{ name: `${sectionTitle(title)} ${lang==="en"?"Subtype":"子类型"}`, value: labelText(selected.translation || selected.subtype), remark: "" }]
+            .concat(selected.fields.map(r => ({ name: labelText(r.name), value: displayDraftValue(keyOf(title,r.name,id)), remark: "" })));
+          return { title:`${sectionTitle(title)} ${idx+1}`, items };
+        });
+      }
+      const listRows = title === "托盘" ? rows("托盘","售前填写") : rows("料架","售前填写");
+      return ids.map((id,idx) => ({
+        title:`${sectionTitle(title)} ${idx+1}`,
+        items:visibleRepeaterRows(title,listRows,id).map(r => ({
+          name: labelText(r.name),
+          value: rowExportValue(r,title,id),
+          remark: labelText(r.remark)
+        }))
+      }));
+    }
+    async function exportPdfDirect(fileName){
+      if(!window.jspdf?.jsPDF) throw new Error("jspdf-not-loaded");
+      const pdf = new jspdf.jsPDF("p","mm","a4");
+      if(window.PDF_FONT_SIMHEI_BASE64){
+        pdf.addFileToVFS("simhei.ttf", window.PDF_FONT_SIMHEI_BASE64);
+        pdf.addFont("simhei.ttf", "SimHei", "normal");
+        pdf.setFont("SimHei", "normal");
+      }
+      pdf.setProperties({
+        title:fileName.replace(/\.pdf$/i,""),
+        subject:RESTORE_PREFIX + encodeDraft(),
+        creator:t("title")
+      });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 12;
+      const widths = [50, 78, pageW - margin * 2 - 50 - 78];
+      let y = 14;
+      const lineH = 5.2;
+      const addPageIfNeeded = h => {
+        if(y + h > pageH - margin){ pdf.addPage(); y = margin; }
+      };
+      const textLines = (text, width, size=9) => {
+        pdf.setFontSize(size);
+        return pdf.splitTextToSize(String(text || "-"), width - 4);
+      };
+      const drawRow = (cells, header=false) => {
+        const size = header ? 9 : 8.4;
+        const lines = cells.map((c,i) => textLines(c, widths[i], size));
+        const h = Math.max(8, ...lines.map(l => l.length * lineH + 3));
+        addPageIfNeeded(h);
+        let x = margin;
+        pdf.setDrawColor(190, 207, 199);
+        cells.forEach((_, i) => {
+          if(header){ pdf.setFillColor(232, 244, 238); pdf.rect(x, y, widths[i], h, "FD"); }
+          else pdf.rect(x, y, widths[i], h);
+          pdf.setTextColor(header ? 5 : 20, header ? 72 : 20, header ? 50 : 20);
+          pdf.setFontSize(size);
+          pdf.text(lines[i], x + 2, y + 5);
+          x += widths[i];
+        });
+        y += h;
+      };
+      const drawSection = section => {
+        if(!section.items.length) return;
+        addPageIfNeeded(18);
+        pdf.setFontSize(14);
+        pdf.setTextColor(4, 74, 51);
+        pdf.text(section.title, margin, y);
+        y += 7;
+        drawRow([lang==="en"?"Item":"项目", lang==="en"?"Value":"内容", lang==="en"?"Notes":"备注"], true);
+        section.items.forEach(item => drawRow([item.name, item.value || "-", item.remark || ""]));
+        y += 5;
+      };
+      pdf.setFontSize(17);
+      pdf.setTextColor(3, 45, 31);
+      pdf.text(t("title"), margin, y);
+      y += 8;
+      pdf.setFontSize(9);
+      pdf.setTextColor(80, 92, 88);
+      pdf.text(`${t("tpl")}: ${displayFileName(config.fileName)}    ${t("model")}: ${labelText(draft.model)}`, margin, y);
+      y += 8;
+      const report = collectReportSections();
+      drawSection(report.sections[0]);
+      drawSection(report.sections[1]);
+      drawSection(report.sections[2]);
+      deviceReportSections("托盘").forEach(drawSection);
+      deviceReportSections("料架").forEach(drawSection);
+      drawSection(report.sections[3]);
+      pdf.setFontSize(1);
+      pdf.setTextColor(255,255,255);
+      pdf.text(RESTORE_PREFIX + encodeDraft(), margin, pageH - 3);
+      pdf.save(fileName);
+    }
+    function exportHtml(fileName, autoPrint=true){
+      const report = collectReportSections();
+      const body = [
+        reportTable(report.sections[0].title, report.sections[0].items),
+        reportTable(report.sections[1].title, report.sections[1].items),
+        reportTable(report.sections[2].title, report.sections[2].items),
+        exportDeviceSection("托盘"),
+        exportDeviceSection("料架"),
+        reportTable(report.sections[3].title, report.sections[3].items)
+      ].join("");
+      return `<!doctype html><html lang="${lang==="en"?"en":"zh-CN"}"><head><meta charset="utf-8"><title>${escapeHtml(fileName.replace(/\.pdf$/i,""))}</title><style>
+        body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111;margin:24px;line-height:1.45}
+        h1{font-size:22px;margin:0 0 10px} h2{font-size:16px;margin:20px 0 8px;padding-bottom:6px;border-bottom:2px solid #0b6b4a;color:#064832}
+        .meta{color:#555;margin-bottom:18px}.restore{font-size:1px;color:#fff;line-height:1px}
+        table{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px;break-inside:avoid}
+        th,td{border:1px solid #c8d6d0;padding:7px 8px;vertical-align:top;white-space:pre-wrap;word-break:break-word}
+        th{width:28%;background:#eef6f2;text-align:left} td:nth-child(2){width:44%} td:nth-child(3){width:28%;color:#555}
+        @page{size:A4;margin:14mm}@media print{body{margin:0}.noPrint{display:none}}
+      </style></head><body><h1>${escapeHtml(t("title"))}</h1><div class="meta">${escapeHtml(t("tpl"))}: ${escapeHtml(displayFileName(config.fileName))} · ${escapeHtml(t("model"))}: ${escapeHtml(labelText(draft.model))}</div>${body}<div class="restore">${RESTORE_PREFIX + encodeDraft()}</div>${autoPrint ? "<script>setTimeout(()=>window.print(),300)<\\/script>" : ""}</body></html>`;
+    }
+    function printExportForm(fileName){
+      const html = exportHtml(fileName, false);
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "1px";
+      iframe.style.height = "1px";
+      iframe.style.border = "0";
+      iframe.setAttribute("aria-hidden","true");
+      document.body.appendChild(iframe);
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+      setTimeout(() => {
+        try{
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+          showToast(t("printHint"));
+        }catch(err){
+          downloadBlob(new Blob([exportHtml(fileName, true)], { type:"text/html;charset=utf-8" }), fileName.replace(/\.pdf$/i,"") + ".html");
+        }
+        setTimeout(() => iframe.remove(), 30000);
+      }, 300);
+    }
+
+    $("loginBtn").onclick = () => {
+      const user = norm($("loginUser").value).toUpperCase();
+      const pass = $("loginPass").value;
+      if(USERS[user] === pass){
+        localStorage.setItem(AUTH_KEY, user);
+        $("loginError").textContent = "";
+        updateAuthUI();
+      }else{
+        $("loginError").textContent = t("loginFail");
+      }
+    };
+    $("loginPass").onkeydown = e => { if(e.key === "Enter") $("loginBtn").click(); };
+    $("logoutBtn").onclick = () => { localStorage.removeItem(AUTH_KEY); updateAuthUI(); };
+    $("langBtn").onclick = () => { lang = lang === "zh" ? "en" : "zh"; localStorage.setItem("presales-config-lang", lang); applyLanguage(); render(); };
+    $("templateMenuBtn").onclick = e => {
+      e.stopPropagation();
+      const menu = $("templateMenu");
+      const open = !menu.classList.contains("open");
+      menu.classList.toggle("open", open);
+      $("templateMenuBtn").setAttribute("aria-expanded", String(open));
+    };
+    document.addEventListener("click", e => {
+      if(!$("templateMenu")?.contains(e.target)){
+        $("templateMenu")?.classList.remove("open");
+        $("templateMenuBtn")?.setAttribute("aria-expanded","false");
+      }
+    });
+    $("downloadTplBtn").onclick = () => {
+      $("templateMenu").classList.remove("open");
+      const pwd = prompt(t("pwdPrompt"));
+      if(pwd !== "forwardx"){ alert(t("pwdWrong")); return; }
+      if(!currentTemplateBlob){
+        const a = document.createElement("a");
+        a.href = encodeURI(currentTemplateName || "售前配置模板.xlsx");
+        a.download = currentTemplateName || "售前配置模板.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast(t("tplDownloaded"));
+        return;
+      }
+      downloadBlob(currentTemplateBlob, currentTemplateName || "售前配置模板.xlsx");
+      showToast(t("tplDownloaded"));
+    };
+    $("fileInput").onchange = e => { $("templateMenu").classList.remove("open"); const f=e.target.files[0]; if(f) parseWorkbook(f); };
+    $("pdfInput").onchange = async e => {
+      const f = e.target.files[0]; if(!f) return;
+      if(!window.pdfjsLib){ alert(lang === "en" ? "PDF parser is not loaded. Please check the network and try again." : "PDF解析组件未加载，请检查网络后重试。"); return; }
+      $("loading").classList.add("show");
+      try{
+        const doc = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise;
+        const meta = await doc.getMetadata().catch(() => null);
+        const metaText = [meta?.info?.Subject, meta?.info?.Keywords, meta?.metadata?.get("dc:description")].filter(Boolean).join("\n");
+        let text = "";
+        for(let i=1;i<=doc.numPages;i++){
+          const page = await doc.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(x=>x.str).join("") + "\n";
+        }
+        const restored = decodeDraft(metaText) || decodeDraft(text);
+        if(!restored?.draft) throw new Error("not-found");
+        draft = restored.draft;
+        if(config && !config.models.includes(draft.model)) draft.model = "";
+        save(); render();
+        $("fileStatus").textContent = `${t("restored")}：${f.name}`;
+      }catch(err){
+        alert(lang === "en" ? "No recoverable configuration data was found in this PDF. Please upload a PDF exported from this platform." : "没有在这个PDF里找到可恢复的配置数据。请上传本平台导出的PDF。");
+      }finally{
+        $("loading").classList.remove("show");
+        e.target.value = "";
+      }
+    };
+    $("clearBtn").onclick = () => {
+      if(!confirm(t("clearConfirm"))) return;
+      draft = { series:"", model:"", values:{}, repeaters:{} };
+      save(); render();
+    };
+    $("modalClose").onclick = () => $("modal").classList.remove("show");
+    $("modal").onclick = e => { if(e.target.id === "modal") $("modal").classList.remove("show"); };
+    $("pdfBtn").onclick = async () => {
+      if(!config){ alert(lang === "en" ? "Load a configuration template before exporting." : "请先加载配置模板后再导出。"); return; }
+      if(!draft.model){ alert(lang === "en" ? "Select a model before exporting PDF." : "请先选择车型后再导出PDF。"); return; }
+      const btn = $("pdfBtn");
+      const fileName = exportFileName();
+      btn.disabled = true;
+      btn.textContent = t("pdfGenerating");
+      $("loading").textContent = t("pdfGenerating");
+      $("loading").classList.add("show");
+      try{
+        await exportPdfDirect(fileName);
+        showToast(`${t("pdfDone")}: ${fileName}`);
+      }catch(err){
+        downloadBlob(new Blob([exportHtml(fileName, true)], { type:"text/html;charset=utf-8" }), fileName.replace(/\.pdf$/i,"") + ".html");
+        showToast(lang === "en" ? "PDF export fallback downloaded as printable HTML." : "PDF 直接导出失败，已下载可打印 HTML 兜底。");
+      }finally{
+        btn.disabled = false;
+        btn.textContent = t("exportPdf");
+        $("loading").textContent = t("loadingTpl");
+        $("loading").classList.remove("show");
+      }
+    };
+
+    updateAuthUI();
+    const defaultTemplateUrl = location.protocol === "file:" ? "售前配置模板.xlsx" : "售前配置模板.xlsx?v=" + Date.now();
+    fetch(defaultTemplateUrl).then(r => r.ok ? r.blob() : null).then(blob => {
+      if(blob) parseWorkbook(new File([blob],"售前配置模板.xlsx"));
+      else render();
+    }).catch(render);
+  </script>
+</body>
+</html>
