@@ -23,6 +23,7 @@
     .flatpickr-calendar{background:#09110f;border:1px solid rgba(135,255,209,.30);box-shadow:0 24px 70px rgba(0,0,0,.55);color:#eafff7}.flatpickr-calendar.arrowTop:before,.flatpickr-calendar.arrowTop:after{border-bottom-color:#09110f}.flatpickr-months .flatpickr-month,.flatpickr-current-month .flatpickr-monthDropdown-months,.flatpickr-weekdays,.flatpickr-weekday{background:#09110f;color:#eafff7}.flatpickr-day{color:#dffcf2;border-radius:8px}.flatpickr-day:hover,.flatpickr-day:focus{background:rgba(33,227,155,.16);border-color:rgba(33,227,155,.38)}.flatpickr-day.today{border-color:#21e39b}.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{background:#21e39b;border-color:#21e39b;color:#03110c}.flatpickr-day.flatpickr-disabled,.flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay{color:#53645e}.numInputWrapper span{border-color:rgba(135,255,209,.15)}
     .readonly{white-space:pre-wrap;border:1px dashed rgba(135,255,209,.28);border-radius:10px;min-height:42px;padding:10px;background:rgba(8,18,15,.54);color:#cde9df}
     .field.modified{background:linear-gradient(135deg,rgba(75,56,19,.60),rgba(21,31,28,.88));border-left:3px solid #ffd166}.field.modified .name::after{content:"已修改";margin-left:8px;padding:2px 7px;border:1px solid rgba(255,209,102,.70);border-radius:999px;color:#ffe0a0;font-size:11px;font-weight:700}html[lang="en"] .field.modified .name::after{content:"Modified"}.defaultActions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+    .customSales{grid-column:1/-1;display:grid;grid-template-columns:1fr;gap:12px;padding:14px;background:rgba(7,12,11,.28)}.customSalesCard{border:1px solid rgba(135,255,209,.20);border-radius:14px;background:linear-gradient(135deg,rgba(19,33,29,.80),rgba(10,16,14,.88));overflow:hidden}.customSalesCard .cardTitle{background:rgba(15,46,35,.56)}.customSalesGrid{display:grid;grid-template-columns:1fr 1.4fr;gap:1px;background:rgba(135,255,209,.14);padding:1px}.customSalesGrid .field{min-height:92px}.customSalesEmpty{grid-column:1/-1;color:#93b8aa;font-size:13px;padding:4px 2px}.customSalesActions{display:flex;justify-content:flex-start;padding-top:2px}
     .ghost{border:1px solid rgba(135,255,209,.30);background:rgba(255,255,255,.05);border-radius:999px;padding:7px 10px;color:#d9fff1;cursor:pointer}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:18px;background:rgba(7,12,11,.36)}.cards.single{grid-template-columns:1fr}.card{border:1px solid rgba(135,255,209,.22);background:linear-gradient(135deg,rgba(22,33,30,.84),rgba(10,14,13,.86));border-radius:16px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06)}.cardTitle{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(135,255,209,.18);background:rgba(18,46,36,.48);color:#eafff7}.card .field{border-bottom:1px solid rgba(135,255,209,.12)}
     .thumbBox{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.thumb{width:210px;height:142px;object-fit:cover;border:1px solid rgba(135,255,209,.25);border-radius:12px}.guideImg{width:100%;max-width:320px;max-height:210px;object-fit:contain;display:block;margin:0 0 10px;border:1px solid rgba(135,255,209,.22);border-radius:12px;background:rgba(255,255,255,.92);cursor:pointer}.deviceGallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:14px;background:rgba(7,12,11,.50);border-bottom:1px solid rgba(135,255,209,.16)}.deviceGallery img{width:100%;height:200px;object-fit:contain;background:#f7faf8;border:1px solid rgba(135,255,209,.22);border-radius:12px;cursor:pointer}.empty{min-height:164px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#a4bdb4;background:rgba(8,13,12,.52);border:1px solid rgba(135,255,209,.18);border-radius:14px}
     .modal{position:fixed;inset:0;background:rgba(0,8,5,.82);display:none;align-items:center;justify-content:center;padding:22px;z-index:40}.modal.show{display:flex}.modalInner{width:min(1180px,96vw);height:min(900px,94vh);display:grid;grid-template-rows:auto minmax(0,1fr);background:linear-gradient(135deg,#111a18,#050807);border:1px solid rgba(135,255,209,.26);border-radius:16px;overflow:hidden;color:#f2fff9;box-shadow:0 30px 100px rgba(0,0,0,.62)}.modalTitle{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(135,255,209,.20)}.modalTitle strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.modal img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
@@ -95,6 +96,7 @@
     const sectionNames = new Set(["项目基本信息","售前配置项","用电相关","托盘","料架","默认配置"]);
     let config = null;
     let draft = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"model":"","values":{},"repeaters":{}}');
+    draft.defaultOpen = false;
     let templateTranslations = {};
     let currentTemplateBlob = null;
     let currentTemplateName = "售前配置模板.xlsx";
@@ -651,6 +653,18 @@
       const val = draft.values[k] || "";
       return `<div class="field salesRemark"><div class="meta"><div><div class="name">${t("siteRemark")}</div><div class="remark">${t("siteRemarkHelp")}</div></div></div><textarea data-key="${k}" aria-label="${t("siteRemark")}" placeholder="${t("siteRemarkPh")}">${escapeHtml(labelText(val))}</textarea></div>`;
     }
+    function customSalesItems(){
+      if(!Array.isArray(draft.customSales)) draft.customSales = [];
+      const titleLabel = lang === "en" ? "Custom Item Title" : "自定义标题";
+      const contentLabel = lang === "en" ? "Custom Item Content" : "自定义内容";
+      const emptyText = lang === "en" ? "Click + Add to append temporary presales notes. These items are exported to PDF only." : "点击 + 添加临时售前配置项，仅在导出 PDF 中体现，不保存到配置模板。";
+      const addButton = `<div class="customSalesActions"><button class="ghost" data-add-custom-sales>${lang === "en" ? "+ Add" : "+ 添加"}</button></div>`;
+      if(!draft.customSales.length) return `<div class="customSales"><div class="customSalesEmpty">${emptyText}</div>${addButton}</div>`;
+      return `<div class="customSales">${draft.customSales.map((item, idx) => {
+        const id = item.id;
+        return `<div class="customSalesCard"><div class="cardTitle"><strong>${lang === "en" ? "Custom Item" : "自定义项"} ${idx+1}</strong><button class="ghost" data-remove-custom-sales="${id}">${t("delete")}</button></div><div class="customSalesGrid"><div class="field"><div class="meta"><div class="name">${titleLabel}</div></div><input type="text" data-custom-sales-title="${id}" value="${escapeHtml(item.title || "")}" placeholder="${titleLabel}"></div><div class="field"><div class="meta"><div class="name">${contentLabel}</div></div><textarea data-custom-sales-content="${id}" placeholder="${contentLabel}">${escapeHtml(item.content || "")}</textarea></div></div></div>`;
+      }).join("")}${addButton}</div>`;
+    }
 
     function repeater(title, listRows){
       const ids = draft.repeaters[title] || ["1"];
@@ -707,7 +721,7 @@
       const pallet = rows("托盘","售前填写");
       const rack = rows("料架","售前填写");
       const def = rows("默认配置","默认配置");
-      html += `<section class="band" id="sales"><div class="head"><h2>${t("sales")}</h2></div><div class="grid">${salesRemarkCard()}${sales.map(r=>field(r)).join("")}</div></section>`;
+      html += `<section class="band" id="sales"><div class="head"><h2>${t("sales")}</h2></div><div class="grid">${salesRemarkCard()}${sales.map(r=>field(r)).join("")}${customSalesItems()}</div></section>`;
       html += `<section class="band" id="power"><div class="head"><h2>${t("power")}</h2></div><div class="grid">${power.map(r=>field(r)).join("")}</div></section>`;
       if(config.devices?.["托盘"]?.length) html += deviceRepeater("托盘");
       else if(pallet.length) html += repeater("托盘", pallet);
@@ -758,6 +772,25 @@
       document.querySelectorAll("[data-skip]").forEach(el => el.onclick = () => { const t=el.dataset.skip; draft.repeaters[`${t}::skip`] = true; save(); render(); });
       document.querySelectorAll("[data-need]").forEach(el => el.onclick = () => { const t=el.dataset.need; draft.repeaters[`${t}::skip`] = false; if(!(draft.repeaters[t]||[]).length) draft.repeaters[t] = ["1"]; save(); render(); });
       document.querySelectorAll("[data-remove]").forEach(el => el.onclick = () => { const t=el.dataset.remove; draft.repeaters[t] = (draft.repeaters[t]||[]).filter(x=>x!==el.dataset.id); save(); render(); });
+      document.querySelectorAll("[data-add-custom-sales]").forEach(el => el.onclick = () => {
+        if(!Array.isArray(draft.customSales)) draft.customSales = [];
+        draft.customSales.push({ id:String(Date.now()), title:"", content:"" });
+        save(); render();
+      });
+      document.querySelectorAll("[data-remove-custom-sales]").forEach(el => el.onclick = () => {
+        draft.customSales = (draft.customSales || []).filter(item => item.id !== el.dataset.removeCustomSales);
+        save(); render();
+      });
+      document.querySelectorAll("[data-custom-sales-title]").forEach(el => el.oninput = el.onchange = e => {
+        const item = (draft.customSales || []).find(x => x.id === e.target.dataset.customSalesTitle);
+        if(item) item.title = e.target.value;
+        save();
+      });
+      document.querySelectorAll("[data-custom-sales-content]").forEach(el => el.oninput = el.onchange = e => {
+        const item = (draft.customSales || []).find(x => x.id === e.target.dataset.customSalesContent);
+        if(item) item.content = e.target.value;
+        save();
+      });
       document.querySelectorAll("[data-img]").forEach(el => el.onclick = () => { $("modalImg").src=el.dataset.img; $("modalTitle").textContent=el.dataset.title; $("modal").classList.add("show"); });
       document.querySelectorAll("[data-toggle-default]").forEach(el => el.onclick = () => { draft.defaultOpen = !draft.defaultOpen; save(); render(); });
       document.querySelectorAll("[data-save-default-template]").forEach(el => el.onclick = async () => {
@@ -820,6 +853,24 @@
         modified: group === "默认配置" && isDefaultTouched(r)
       }));
     }
+    function customSalesExportItems(){
+      return (draft.customSales || [])
+        .filter(item => norm(item.title) || norm(item.content))
+        .map((item, idx) => ({
+          name: norm(item.title) || `${lang === "en" ? "Custom Item" : "自定义项"} ${idx+1}`,
+          value: norm(item.content) || "-",
+          remark: lang === "en" ? "Temporary item, PDF export only" : "临时添加项，仅导出PDF"
+        }));
+    }
+    function customSalesExportItemsBilingual(){
+      return (draft.customSales || [])
+        .filter(item => norm(item.title) || norm(item.content))
+        .map((item, idx) => ({
+          name: bilingualText(norm(item.title) || `自定义项 ${idx+1}`),
+          value: bilingualText(norm(item.content)) || "-",
+          remark:"临时添加项，仅导出PDF / Temporary item, PDF export only"
+        }));
+    }
     function exportDeviceSection(title){
       if(draft.repeaters[`${title}::skip`] === true) return reportTable(sectionTitle(title), [{ name: sectionTitle(title), value: `${t("noNeedPrefix")} ${sectionTitle(title)}`, remark: "" }]);
       const list = config?.devices?.[title] || [];
@@ -845,7 +896,7 @@
       const basicItems = rows("项目基本信息").filter(r=>r.name!=="车型").map(r => ({ name: labelText(r.name), value: displayDraftValue(keyOf("main",r.name)), remark: labelText(r.remark) }))
         .concat([{ name:t("series"), value:labelText(modelSeries(draft.model)), remark:"" }, { name:t("model"), value:labelText(draft.model), remark:"" }]);
       const siteRemark = displayDraftValue(keyOf("main","现场特殊需求备注"));
-      const salesItems = [{ name:t("siteRemark"), value:siteRemark, remark:t("siteRemarkHelp") }].concat(exportRows("售前配置项","售前填写"));
+      const salesItems = [{ name:t("siteRemark"), value:siteRemark, remark:t("siteRemarkHelp") }].concat(exportRows("售前配置项","售前填写")).concat(customSalesExportItems());
       const sections = [
         { title:t("basic"), items:basicItems },
         { title:t("sales"), items:salesItems },
@@ -865,7 +916,8 @@
       ]);
       const siteRemark = displayDraftValueRaw(keyOf("main","现场特殊需求备注"));
       const salesItems = [{ name:bilingualText("现场特殊需求备注"), value:bilingualText(siteRemark) || "-", remark:bilingualText("用于补充说明现场工况、客户特殊要求或其他需要研发关注的信息。") }]
-        .concat(exportRowsBilingual("售前配置项","售前填写"));
+        .concat(exportRowsBilingual("售前配置项","售前填写"))
+        .concat(customSalesExportItemsBilingual());
       const sections = [
         { title:"项目基本信息 / Basic Info", items:basicItems },
         { title:"售前配置项 / Sales Options", items:salesItems },
