@@ -22,6 +22,7 @@
     input[type=text],input[type=password],input[type=date],select,textarea{width:100%;border:1px solid rgba(135,255,209,.28);border-radius:10px;padding:11px 12px;min-height:44px;background:rgba(4,10,9,.72);color:#f5fffb;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}input::placeholder,textarea::placeholder{color:#7f978e}select option{background:#0d1714;color:#f5fffb}input:focus,select:focus,textarea:focus{outline:none;border-color:#45f5b3;box-shadow:0 0 0 3px rgba(33,227,155,.18),0 0 24px rgba(33,227,155,.12)}button:focus-visible,a:focus-visible,label.upload:focus-within{outline:3px solid rgba(33,227,155,.80);outline-offset:3px} textarea{resize:vertical;min-height:104px}
     .flatpickr-calendar{background:#09110f;border:1px solid rgba(135,255,209,.30);box-shadow:0 24px 70px rgba(0,0,0,.55);color:#eafff7}.flatpickr-calendar.arrowTop:before,.flatpickr-calendar.arrowTop:after{border-bottom-color:#09110f}.flatpickr-months .flatpickr-month,.flatpickr-current-month .flatpickr-monthDropdown-months,.flatpickr-weekdays,.flatpickr-weekday{background:#09110f;color:#eafff7}.flatpickr-day{color:#dffcf2;border-radius:8px}.flatpickr-day:hover,.flatpickr-day:focus{background:rgba(33,227,155,.16);border-color:rgba(33,227,155,.38)}.flatpickr-day.today{border-color:#21e39b}.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{background:#21e39b;border-color:#21e39b;color:#03110c}.flatpickr-day.flatpickr-disabled,.flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay{color:#53645e}.numInputWrapper span{border-color:rgba(135,255,209,.15)}
     .readonly{white-space:pre-wrap;border:1px dashed rgba(135,255,209,.28);border-radius:10px;min-height:42px;padding:10px;background:rgba(8,18,15,.54);color:#cde9df}
+    .field.modified{background:linear-gradient(135deg,rgba(75,56,19,.60),rgba(21,31,28,.88));border-left:3px solid #ffd166}.field.modified .name::after{content:"已修改";margin-left:8px;padding:2px 7px;border:1px solid rgba(255,209,102,.70);border-radius:999px;color:#ffe0a0;font-size:11px;font-weight:700}html[lang="en"] .field.modified .name::after{content:"Modified"}.defaultActions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
     .ghost{border:1px solid rgba(135,255,209,.30);background:rgba(255,255,255,.05);border-radius:999px;padding:7px 10px;color:#d9fff1;cursor:pointer}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:18px;background:rgba(7,12,11,.36)}.cards.single{grid-template-columns:1fr}.card{border:1px solid rgba(135,255,209,.22);background:linear-gradient(135deg,rgba(22,33,30,.84),rgba(10,14,13,.86));border-radius:16px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06)}.cardTitle{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(135,255,209,.18);background:rgba(18,46,36,.48);color:#eafff7}.card .field{border-bottom:1px solid rgba(135,255,209,.12)}
     .thumbBox{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.thumb{width:210px;height:142px;object-fit:cover;border:1px solid rgba(135,255,209,.25);border-radius:12px}.guideImg{width:100%;max-width:320px;max-height:210px;object-fit:contain;display:block;margin:0 0 10px;border:1px solid rgba(135,255,209,.22);border-radius:12px;background:rgba(255,255,255,.92);cursor:pointer}.deviceGallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:14px;background:rgba(7,12,11,.50);border-bottom:1px solid rgba(135,255,209,.16)}.deviceGallery img{width:100%;height:200px;object-fit:contain;background:#f7faf8;border:1px solid rgba(135,255,209,.22);border-radius:12px;cursor:pointer}.empty{min-height:164px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#a4bdb4;background:rgba(8,13,12,.52);border:1px solid rgba(135,255,209,.18);border-radius:14px}
     .modal{position:fixed;inset:0;background:rgba(0,8,5,.82);display:none;align-items:center;justify-content:center;padding:22px;z-index:40}.modal.show{display:flex}.modalInner{width:min(1180px,96vw);height:min(900px,94vh);display:grid;grid-template-rows:auto minmax(0,1fr);background:linear-gradient(135deg,#111a18,#050807);border:1px solid rgba(135,255,209,.26);border-radius:16px;overflow:hidden;color:#f2fff9;box-shadow:0 30px 100px rgba(0,0,0,.62)}.modalTitle{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(135,255,209,.20)}.modalTitle strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.modal img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
@@ -157,6 +158,11 @@
     const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
     const keyOf = (prefix, name, id="") => `${prefix}::${name}${id ? "::"+id : ""}`;
     const currentUser = () => localStorage.getItem(AUTH_KEY) || "";
+    function timeStamp(){
+      const d = new Date();
+      const pad = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
     function modelSeries(model){
       const m = norm(model);
       if(!m) return "";
@@ -309,6 +315,19 @@
       });
       return out;
     }
+    function parseAudit(wb){
+      const sheet = wb.Sheets["修改记录"];
+      if(!sheet) return [];
+      const matrix = XLSX.utils.sheet_to_json(sheet, { header:1, defval:"" }).map(r => r.map(norm));
+      return matrix.slice(1).map(c => ({
+        time:c[0],
+        user:c[1],
+        model:c[2],
+        item:c[3],
+        oldValue:c[4],
+        newValue:c[5]
+      })).filter(x => x.time && x.model && x.item);
+    }
 
     async function parseWorkbook(file){
       $("loading").classList.add("show");
@@ -333,12 +352,12 @@
             return;
           }
           const img = imageId(cells[1]);
-          const row = { id: `${idx}-${name}`, name, group, imageUrl: images[img] || "", displaySection: cells[2], inputType: cells[3], required: cells[4] === "是", remark: cells[5], values:{} };
+          const row = { id: `${idx}-${name}`, name, group, imageUrl: images[img] || "", displaySection: cells[2], inputType: cells[3], required: cells[4] === "是", remark: cells[5], values:{}, sourceRow:idx, modelStart };
           if(group !== "项目基本信息") models.forEach((m,i)=> row.values[m] = cells[modelStart+i] || "");
           rows.push(row);
         });
         templateTranslations = parseTranslations(wb);
-        config = { fileName:file.name, models, rows, devices:parseDevices(wb, images) };
+        config = { fileName:file.name, models, rows, devices:parseDevices(wb, images), audit:parseAudit(wb) };
         if(!config.models.includes(draft.model)) draft.model = "";
         $("fileStatus").textContent = `${t("tpl")}: ${displayFileName(currentTemplateName)}`;
         save(); render();
@@ -367,6 +386,51 @@
       clearTimeout(showToast.timer);
       showToast.timer = setTimeout(() => el.classList.remove("show"), 3600);
     }
+    function defaultKey(row){ return keyOf("default", row.name); }
+    function originalDefaultValue(row){ return norm(row.values[draft.model]); }
+    function currentDefaultValue(row){
+      const k = defaultKey(row);
+      return draft.values[k] ?? originalDefaultValue(row);
+    }
+    function isDefaultModified(row){
+      if(!draft.modifiedDefaults) draft.modifiedDefaults = {};
+      const original = originalDefaultValue(row);
+      const current = currentDefaultValue(row);
+      return !!draft.modifiedDefaults[defaultKey(row)] && norm(current) !== norm(original);
+    }
+    function markDefaultModified(key, value, original){
+      if(!draft.modifiedDefaults) draft.modifiedDefaults = {};
+      if(norm(value) !== norm(original)) draft.modifiedDefaults[key] = true;
+      else delete draft.modifiedDefaults[key];
+    }
+    function defaultAuditEntries(row){
+      return (config?.audit || []).filter(x => x.model === draft.model && x.item === row.name);
+    }
+    function latestDefaultAudit(row){
+      const list = defaultAuditEntries(row);
+      return list.length ? list[list.length - 1] : null;
+    }
+    function isDefaultTouched(row){
+      return isDefaultModified(row) || !!latestDefaultAudit(row);
+    }
+    function defaultAuditRemark(row, base="", bilingual=false){
+      const parts = [];
+      if(base) parts.push(base);
+      if(isDefaultModified(row)){
+        const original = originalDefaultValue(row) || "-";
+        parts.push(bilingual
+          ? `未保存修改 / Unsaved Change\n原值 / Original: ${bilingualText(original)}`
+          : `${lang === "en" ? "Unsaved change" : "未保存修改"}\n${lang === "en" ? "Original" : "原值"}: ${labelText(original)}`);
+      }
+      const audit = latestDefaultAudit(row);
+      if(audit){
+        const info = bilingual
+          ? `最近保存 / Last Saved: ${audit.time}\n修改账号 / User: ${audit.user}\n原值 / Original: ${bilingualText(audit.oldValue) || "-"}`
+          : `${lang === "en" ? "Last saved" : "最近保存"}: ${audit.time}\n${lang === "en" ? "User" : "修改账号"}: ${audit.user}\n${lang === "en" ? "Original" : "原值"}: ${labelText(audit.oldValue) || "-"}`;
+        parts.push(info);
+      }
+      return parts.filter(Boolean).join("\n");
+    }
     function isTractionRack(cardId){
       return draft.values[keyOf("料架","料架类型",cardId)] === "牵引料架";
     }
@@ -392,10 +456,175 @@
       return title === "托盘" ? t("pallet") : title === "料架" ? t("rack") : title;
     }
 
+    function sheetPathFromZip(zip, sheetName){
+      return Promise.all([
+        zip.file("xl/workbook.xml")?.async("text"),
+        zip.file("xl/_rels/workbook.xml.rels")?.async("text")
+      ]).then(([workbookXml, relsXml]) => {
+        if(!workbookXml || !relsXml) throw new Error("template-structure");
+        const parser = new DOMParser();
+        const wbDoc = parser.parseFromString(workbookXml, "application/xml");
+        const relDoc = parser.parseFromString(relsXml, "application/xml");
+        const sheets = Array.from(wbDoc.getElementsByTagName("sheet"));
+        const sheet = sheets.find(s => s.getAttribute("name") === sheetName) || (sheetName === "配置数据库" ? sheets[0] : null);
+        if(!sheet) return "";
+        const rid = sheet.getAttribute("r:id") || sheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+        const rel = Array.from(relDoc.getElementsByTagName("Relationship")).find(r => r.getAttribute("Id") === rid);
+        if(!rel) throw new Error("template-relationship");
+        const target = rel.getAttribute("Target") || "";
+        return target.startsWith("/") ? target.slice(1) : `xl/${target.replace(/^\.?\//,"")}`;
+      });
+    }
+    function configSheetPathFromZip(zip){ return sheetPathFromZip(zip, "配置数据库"); }
+    function setWorksheetCell(doc, rowIndex, colIndex, value){
+      const ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+      const rowNo = rowIndex + 1;
+      const cellRef = XLSX.utils.encode_cell({ r:rowIndex, c:colIndex });
+      const sheetData = doc.getElementsByTagNameNS(ns, "sheetData")[0] || doc.getElementsByTagName("sheetData")[0];
+      let row = Array.from(doc.getElementsByTagNameNS(ns, "row")).find(r => Number(r.getAttribute("r")) === rowNo);
+      if(!row){
+        row = doc.createElementNS(ns, "row");
+        row.setAttribute("r", String(rowNo));
+        sheetData.appendChild(row);
+      }
+      let cell = Array.from(row.getElementsByTagNameNS(ns, "c")).find(c => c.getAttribute("r") === cellRef);
+      if(!cell){
+        cell = doc.createElementNS(ns, "c");
+        cell.setAttribute("r", cellRef);
+        row.appendChild(cell);
+      }
+      while(cell.firstChild) cell.removeChild(cell.firstChild);
+      cell.setAttribute("t", "inlineStr");
+      const is = doc.createElementNS(ns, "is");
+      const text = doc.createElementNS(ns, "t");
+      text.setAttribute("xml:space", "preserve");
+      text.textContent = value || "";
+      is.appendChild(text);
+      cell.appendChild(is);
+    }
+    function addAuditRowsToDoc(doc, entries){
+      const ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+      const sheetData = doc.getElementsByTagNameNS(ns, "sheetData")[0] || doc.getElementsByTagName("sheetData")[0];
+      const rows = Array.from(doc.getElementsByTagNameNS(ns, "row"));
+      let nextRow = rows.reduce((max, row) => Math.max(max, Number(row.getAttribute("r")) || 0), 0) + 1;
+      entries.forEach(entry => {
+        ["time","user","model","item","oldValue","newValue"].forEach((field, colIndex) => setWorksheetCell(doc, nextRow - 1, colIndex, entry[field] || ""));
+        nextRow += 1;
+      });
+      const dimension = doc.getElementsByTagNameNS(ns, "dimension")[0] || doc.getElementsByTagName("dimension")[0];
+      if(dimension) dimension.setAttribute("ref", `A1:F${Math.max(nextRow - 1, 1)}`);
+    }
+    function auditSheetXml(entries){
+      const rows = [
+        { time:"修改时间", user:"修改账号", model:"车型", item:"配置项", oldValue:"原值", newValue:"新值" },
+        ...entries
+      ];
+      const esc = s => String(s || "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+      const rowXml = rows.map((row, rIdx) => {
+        const cells = ["time","user","model","item","oldValue","newValue"].map((field, cIdx) => {
+          const ref = XLSX.utils.encode_cell({ r:rIdx, c:cIdx });
+          return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${esc(row[field])}</t></is></c>`;
+        }).join("");
+        return `<row r="${rIdx+1}">${cells}</row>`;
+      }).join("");
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><dimension ref="A1:F${rows.length}"/><sheetViews><sheetView workbookViewId="0"/></sheetViews><sheetFormatPr defaultRowHeight="15"/><sheetData>${rowXml}</sheetData></worksheet>`;
+    }
+    async function appendAuditSheet(zip, entries){
+      if(!entries.length) return;
+      const existingPath = await sheetPathFromZip(zip, "修改记录");
+      if(existingPath && zip.file(existingPath)){
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(await zip.file(existingPath).async("text"), "application/xml");
+        addAuditRowsToDoc(doc, entries);
+        zip.file(existingPath, new XMLSerializer().serializeToString(doc));
+        return;
+      }
+      const parser = new DOMParser();
+      const wbPath = "xl/workbook.xml";
+      const relsPath = "xl/_rels/workbook.xml.rels";
+      const typesPath = "[Content_Types].xml";
+      const wbDoc = parser.parseFromString(await zip.file(wbPath).async("text"), "application/xml");
+      const relDoc = parser.parseFromString(await zip.file(relsPath).async("text"), "application/xml");
+      const typesDoc = parser.parseFromString(await zip.file(typesPath).async("text"), "application/xml");
+      const sheetsEl = wbDoc.getElementsByTagName("sheets")[0];
+      const sheets = Array.from(wbDoc.getElementsByTagName("sheet"));
+      const maxSheetId = sheets.reduce((m, s) => Math.max(m, Number(s.getAttribute("sheetId")) || 0), 0);
+      const rels = Array.from(relDoc.getElementsByTagName("Relationship"));
+      const maxRid = rels.reduce((m, r) => Math.max(m, Number((r.getAttribute("Id") || "").replace(/\D/g,"")) || 0), 0);
+      let sheetNo = maxSheetId + 1;
+      while(zip.file(`xl/worksheets/sheet${sheetNo}.xml`)) sheetNo += 1;
+      const relId = `rId${maxRid + 1}`;
+      const workbookNs = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+      const relNs = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+      const pkgRelNs = "http://schemas.openxmlformats.org/package/2006/relationships";
+      const sheetEl = wbDoc.createElementNS(workbookNs, "sheet");
+      sheetEl.setAttribute("name", "修改记录");
+      sheetEl.setAttribute("sheetId", String(maxSheetId + 1));
+      sheetEl.setAttributeNS(relNs, "r:id", relId);
+      sheetsEl.appendChild(sheetEl);
+      const relEl = relDoc.createElementNS(pkgRelNs, "Relationship");
+      relEl.setAttribute("Id", relId);
+      relEl.setAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet");
+      relEl.setAttribute("Target", `worksheets/sheet${sheetNo}.xml`);
+      relDoc.documentElement.appendChild(relEl);
+      const override = typesDoc.createElementNS("http://schemas.openxmlformats.org/package/2006/content-types", "Override");
+      override.setAttribute("PartName", `/xl/worksheets/sheet${sheetNo}.xml`);
+      override.setAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml");
+      typesDoc.documentElement.appendChild(override);
+      zip.file(`xl/worksheets/sheet${sheetNo}.xml`, auditSheetXml(entries));
+      zip.file(wbPath, new XMLSerializer().serializeToString(wbDoc));
+      zip.file(relsPath, new XMLSerializer().serializeToString(relDoc));
+      zip.file(typesPath, new XMLSerializer().serializeToString(typesDoc));
+    }
+    async function patchTemplateBlob(updates, auditEntries=[]){
+      if(!currentTemplateBlob || !window.JSZip || !updates.length) return currentTemplateBlob;
+      const zip = await JSZip.loadAsync(await currentTemplateBlob.arrayBuffer());
+      const sheetPath = await configSheetPathFromZip(zip);
+      const sheetFile = zip.file(sheetPath);
+      if(!sheetFile) throw new Error("config-sheet-not-found");
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(await sheetFile.async("text"), "application/xml");
+      updates.forEach(u => setWorksheetCell(doc, u.rowIndex, u.colIndex, u.value));
+      zip.file(sheetPath, new XMLSerializer().serializeToString(doc));
+      await appendAuditSheet(zip, auditEntries);
+      return await zip.generateAsync({ type:"blob", mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    }
+    async function saveDefaultOverridesToTemplate(){
+      if(!config || !draft.model) return;
+      const modelIndex = config.models.indexOf(draft.model);
+      const updates = [];
+      const auditEntries = [];
+      rows("默认配置","默认配置").forEach(row => {
+        if(!isDefaultModified(row)) return;
+        const value = norm(currentDefaultValue(row));
+        const oldValue = originalDefaultValue(row);
+        const entry = {
+          time: timeStamp(),
+          user: currentUser() || "UNKNOWN",
+          model: draft.model,
+          item: row.name,
+          oldValue,
+          newValue: value
+        };
+        row.values[draft.model] = value;
+        updates.push({ rowIndex:row.sourceRow, colIndex:row.modelStart + modelIndex, value });
+        auditEntries.push(entry);
+        delete draft.modifiedDefaults[defaultKey(row)];
+      });
+      if(!updates.length){ showToast(lang === "en" ? "No default changes to save." : "没有需要保存的默认配置修改。"); return; }
+      config.audit = (config.audit || []).concat(auditEntries);
+      currentTemplateBlob = await patchTemplateBlob(updates, auditEntries);
+      currentTemplateName = currentTemplateName || "售前配置模板.xlsx";
+      save();
+      render();
+      showToast(lang === "en" ? "Saved to the current template. Download it from Template > Download Template." : "已写回当前模板，可在“模板 > 下载模板”下载更新后的文件。");
+    }
+
     function field(row, prefix="main", cardId="", disabled=false){
       const k = keyOf(prefix,row.name,cardId);
       const raw = row.group === "项目基本信息" ? "" : norm(row.values[draft.model]);
-      const val = draft.values[k] ?? (splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw);
+      const isDefaultEditor = prefix === "default";
+      const val = isDefaultEditor ? currentDefaultValue(row) : (draft.values[k] ?? (splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw));
       const showGuide = row.imageUrl && (row.group === "托盘" || row.group === "料架");
       const name = labelText(row.name);
       const imageBtn = row.imageUrl ? `<button class="ghost" data-img="${row.imageUrl}" data-title="${escapeHtml(name)}">${labelText("查看配图")}</button>` : "";
@@ -407,13 +636,15 @@
         const has = val && typeof val === "object" && val.dataUrl;
         control = `<div class="thumbBox"><label class="upload">${t("uploadImage")}<input type="file" accept="image/*" data-file="${k}" aria-label="${escapeHtml(name)}"></label>${has ? `<img class="thumb" src="${val.dataUrl}" alt="${escapeHtml(val.name||"Attachment")}"><button class="ghost" data-clear-file="${k}" aria-label="${t("delete")} ${escapeHtml(name)}">${t("delete")}</button>` : ""}</div>`;
       }else if(row.inputType.includes("下拉") && splitOptions(raw).length > 1){
-        control = `<select data-key="${k}" aria-label="${escapeHtml(name)}">${splitOptions(raw).map(o=>`<option value="${escapeHtml(o)}" ${o===val?"selected":""}>${escapeHtml(labelText(o))}</option>`).join("")}</select>`;
+        const defaultAttrs = isDefaultEditor ? ` data-default-key="${k}" data-original="${escapeHtml(raw)}"` : "";
+        control = `<select data-key="${k}"${defaultAttrs} aria-label="${escapeHtml(name)}">${splitOptions(raw).map(o=>`<option value="${escapeHtml(o)}" ${o===val?"selected":""}>${escapeHtml(labelText(o))}</option>`).join("")}</select>`;
       }else{
         const isDate = row.name.includes("时间");
         const placeholder = isDate ? "YYYY-MM-DD" : t("placeholder");
-        control = `<input type="text" ${isDate ? 'data-date="1"' : ""} data-key="${k}" aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${placeholder}" autocomplete="off">`;
+        const defaultAttrs = isDefaultEditor ? ` data-default-key="${k}" data-original="${escapeHtml(raw)}"` : "";
+        control = `<input type="text" ${isDate ? 'data-date="1"' : ""} data-key="${k}"${defaultAttrs} aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${placeholder}" autocomplete="off">`;
       }
-      return `<div class="field ${disabled?"disabled":""}">${showGuide ? imagePreview : ""}<div class="meta"><div><div class="name">${escapeHtml(name)}${row.required?'<span class="req">*</span>':""}</div>${remark(labelText(row.remark))}</div>${showGuide ? "" : imageBtn}</div>${showGuide ? "" : imagePreview}${control}</div>`;
+      return `<div class="field ${disabled?"disabled":""} ${isDefaultEditor && isDefaultTouched(row) ? "modified" : ""}">${showGuide ? imagePreview : ""}<div class="meta"><div><div class="name">${escapeHtml(name)}${row.required?'<span class="req">*</span>':""}</div>${remark(labelText(row.remark))}</div>${showGuide ? "" : imageBtn}</div>${showGuide ? "" : imagePreview}${control}</div>`;
     }
     function salesRemarkCard(){
       const k = keyOf("main","现场特殊需求备注");
@@ -483,13 +714,20 @@
       if(config.devices?.["料架"]?.length) html += deviceRepeater("料架");
       else if(rack.length) html += repeater("料架", rack);
       const defaultOpen = draft.defaultOpen === true;
-      html += `<section class="band" id="defaultConfig"><div class="head"><h2>${t("defaults")}</h2><button class="ghost" data-toggle-default aria-expanded="${defaultOpen}">${defaultOpen ? t("hide") : t("show")}</button></div>${defaultOpen ? `<div class="grid default">${def.map(r=>field(r,"main","",true)).join("")}</div>` : `<div class="empty"><strong>${lang === "en" ? "Default configuration is collapsed" : "默认配置已收起"}</strong></div>`}</section>`;
+      const modifiedCount = def.filter(isDefaultModified).length;
+      const saveDefaultsBtn = defaultOpen ? `<button class="ghost" data-save-default-template>${lang === "en" ? "Save to Template" : "保存到模板"}${modifiedCount ? ` (${modifiedCount})` : ""}</button>` : "";
+      html += `<section class="band" id="defaultConfig"><div class="head"><h2>${t("defaults")}</h2><div class="defaultActions">${saveDefaultsBtn}<button class="ghost" data-toggle-default aria-expanded="${defaultOpen}">${defaultOpen ? t("hide") : t("show")}</button></div></div>${defaultOpen ? `<div class="grid default">${def.map(r=>field(r,"default","",false)).join("")}</div>` : `<div class="empty"><strong>${lang === "en" ? "Default configuration is collapsed" : "默认配置已收起"}</strong></div>`}</section>`;
       root.innerHTML = html; bind(); save();
     }
 
     function bind(){
       document.querySelectorAll("[data-key]").forEach(el => el.oninput = el.onchange = e => {
         draft.values[e.target.dataset.key] = e.target.value;
+        if(e.target.dataset.defaultKey){
+          markDefaultModified(e.target.dataset.defaultKey, e.target.value, e.target.dataset.original || "");
+          const holder = e.target.closest(".field");
+          if(holder) holder.classList.toggle("modified", norm(e.target.value) !== norm(e.target.dataset.original || ""));
+        }
         save();
         if(e.target.dataset.key.startsWith("料架::料架类型::") || e.target.dataset.deviceSubtype) render();
       });
@@ -522,6 +760,14 @@
       document.querySelectorAll("[data-remove]").forEach(el => el.onclick = () => { const t=el.dataset.remove; draft.repeaters[t] = (draft.repeaters[t]||[]).filter(x=>x!==el.dataset.id); save(); render(); });
       document.querySelectorAll("[data-img]").forEach(el => el.onclick = () => { $("modalImg").src=el.dataset.img; $("modalTitle").textContent=el.dataset.title; $("modal").classList.add("show"); });
       document.querySelectorAll("[data-toggle-default]").forEach(el => el.onclick = () => { draft.defaultOpen = !draft.defaultOpen; save(); render(); });
+      document.querySelectorAll("[data-save-default-template]").forEach(el => el.onclick = async () => {
+        const pwd = prompt(t("pwdPrompt"));
+        if(pwd !== "forwardx"){ alert(t("pwdWrong")); return; }
+        el.disabled = true;
+        try{ await saveDefaultOverridesToTemplate(); }
+        catch(err){ alert(lang === "en" ? "Failed to save changes into the template. Please download the current draft PDF first." : "写回模板失败，请先导出当前 PDF 备份。"); }
+        finally{ el.disabled = false; }
+      });
       const ss = $("seriesSelect"); if(ss) ss.onchange = e => { draft.series = e.target.value; draft.model = ""; save(); render(); };
       const ms = $("modelSelect"); if(ms) ms.onchange = e => { draft.model = e.target.value; draft.series = modelSeries(draft.model); save(); render(); };
     }
@@ -536,12 +782,14 @@
       return norm(val ?? fallback ?? "");
     }
     function rowExportValue(row, prefix="main", cardId="", disabled=false){
+      if(prefix === "default") return labelText(currentDefaultValue(row) || "-");
       const key = keyOf(prefix, row.name, cardId);
       const raw = row.group === "项目基本信息" ? "" : norm(row.values[draft.model]);
       const fallback = splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw;
       return disabled ? labelText(raw || "-") : displayDraftValue(key, fallback);
     }
     function rowExportValueRaw(row, prefix="main", cardId="", disabled=false){
+      if(prefix === "default") return currentDefaultValue(row) || "-";
       const key = keyOf(prefix, row.name, cardId);
       const raw = row.group === "项目基本信息" ? "" : norm(row.values[draft.model]);
       const fallback = splitOptions(raw).length > 1 ? splitOptions(raw)[0] : raw;
@@ -549,21 +797,27 @@
     }
     function reportTable(title, items){
       if(!items.length) return "";
-      const rowsHtml = items.map(item => `<tr><th>${escapeHtml(item.name)}</th><td>${escapeHtml(item.value || "-")}</td><td>${escapeHtml(item.remark || "")}</td></tr>`).join("");
+      const rowsHtml = items.map(item => `<tr class="${item.modified ? "modified" : ""}"><th>${escapeHtml(item.name)}</th><td>${escapeHtml(item.value || "-")}</td><td>${escapeHtml(item.remark || "")}</td></tr>`).join("");
       return `<section><h2>${escapeHtml(title)}</h2><table><thead><tr><th>${lang==="en"?"Item":"项目"}</th><th>${lang==="en"?"Value":"内容"}</th><th>${lang==="en"?"Notes":"备注"}</th></tr></thead><tbody>${rowsHtml}</tbody></table></section>`;
     }
     function exportRows(group, section, disabled=false){
       return rows(group, section).map(r => ({
         name: labelText(r.name),
-        value: rowExportValue(r, "main", "", disabled),
-        remark: labelText(r.remark)
+        value: rowExportValue(r, group === "默认配置" ? "default" : "main", "", disabled),
+        remark: group === "默认配置" && isDefaultTouched(r)
+          ? defaultAuditRemark(r, labelText(r.remark), false)
+          : labelText(r.remark),
+        modified: group === "默认配置" && isDefaultTouched(r)
       }));
     }
     function exportRowsBilingual(group, section, disabled=false){
       return rows(group, section).map(r => ({
         name: bilingualText(r.name),
-        value: bilingualText(rowExportValueRaw(r, "main", "", disabled)) || "-",
-        remark: bilingualText(r.remark)
+        value: bilingualText(rowExportValueRaw(r, group === "默认配置" ? "default" : "main", "", disabled)) || "-",
+        remark: group === "默认配置" && isDefaultTouched(r)
+          ? defaultAuditRemark(r, bilingualText(r.remark), true)
+          : bilingualText(r.remark),
+        modified: group === "默认配置" && isDefaultTouched(r)
       }));
     }
     function exportDeviceSection(title){
@@ -671,6 +925,22 @@
         }))
       }));
     }
+    function defaultAuditReportSectionBilingual(){
+      const saved = (config?.audit || []).filter(x => x.model === draft.model).map(x => ({
+        name:bilingualText(x.item),
+        value:`${x.newValue || "-"}${englishText(x.newValue) && englishText(x.newValue) !== x.newValue ? ` / ${englishText(x.newValue)}` : ""}`,
+        remark:`修改时间 / Time: ${x.time}\n修改账号 / User: ${x.user}\n原值 / Original: ${bilingualText(x.oldValue) || "-"}`,
+        modified:true
+      }));
+      const unsaved = rows("默认配置","默认配置").filter(isDefaultModified).map(r => ({
+        name:bilingualText(r.name),
+        value:bilingualText(currentDefaultValue(r)) || "-",
+        remark:`未保存修改 / Unsaved Change\n修改账号 / User: ${currentUser() || "UNKNOWN"}\n原值 / Original: ${bilingualText(originalDefaultValue(r)) || "-"}`,
+        modified:true
+      }));
+      const items = saved.concat(unsaved);
+      return items.length ? { title:"修改记录 / Change Log", items } : null;
+    }
     async function exportPdfDirect(fileName){
       if(!window.jspdf?.jsPDF) throw new Error("jspdf-not-loaded");
       const pdf = new jspdf.jsPDF("p","mm","a4");
@@ -697,7 +967,7 @@
         pdf.setFontSize(size);
         return pdf.splitTextToSize(String(text || "-"), width - 4);
       };
-      const drawRow = (cells, header=false) => {
+      const drawRow = (cells, header=false, modified=false) => {
         const size = header ? 9 : 8.4;
         const lines = cells.map((c,i) => textLines(c, widths[i], size));
         const h = Math.max(8, ...lines.map(l => l.length * lineH + 3));
@@ -706,6 +976,7 @@
         pdf.setDrawColor(190, 207, 199);
         cells.forEach((_, i) => {
           if(header){ pdf.setFillColor(232, 244, 238); pdf.rect(x, y, widths[i], h, "FD"); }
+          else if(modified){ pdf.setFillColor(255, 245, 207); pdf.rect(x, y, widths[i], h, "FD"); }
           else pdf.rect(x, y, widths[i], h);
           pdf.setTextColor(header ? 5 : 20, header ? 72 : 20, header ? 50 : 20);
           pdf.setFontSize(size);
@@ -722,7 +993,7 @@
         pdf.text(section.title, margin, y);
         y += 7;
         drawRow(["项目 / Item", "内容 / Value", "备注 / Notes"], true);
-        section.items.forEach(item => drawRow([item.name, item.value || "-", item.remark || ""]));
+        section.items.forEach(item => drawRow([item.name, item.value || "-", item.remark || ""], false, item.modified));
         y += 5;
       };
       pdf.setFontSize(17);
@@ -740,6 +1011,8 @@
       deviceReportSectionsBilingual("托盘").forEach(drawSection);
       deviceReportSectionsBilingual("料架").forEach(drawSection);
       drawSection(report.sections[3]);
+      const auditSection = defaultAuditReportSectionBilingual();
+      if(auditSection) drawSection(auditSection);
       pdf.setFontSize(1);
       pdf.setTextColor(255,255,255);
       pdf.text(RESTORE_PREFIX + encodeDraft(), margin, pageH - 3);
@@ -753,7 +1026,8 @@
         reportTable(report.sections[2].title, report.sections[2].items),
         deviceReportSectionsBilingual("托盘").map(s=>reportTable(s.title,s.items)).join(""),
         deviceReportSectionsBilingual("料架").map(s=>reportTable(s.title,s.items)).join(""),
-        reportTable(report.sections[3].title, report.sections[3].items)
+        reportTable(report.sections[3].title, report.sections[3].items),
+        defaultAuditReportSectionBilingual() ? reportTable(defaultAuditReportSectionBilingual().title, defaultAuditReportSectionBilingual().items) : ""
       ].join("");
       return `<!doctype html><html lang="${lang==="en"?"en":"zh-CN"}"><head><meta charset="utf-8"><title>${escapeHtml(fileName.replace(/\.pdf$/i,""))}</title><style>
         body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#111;margin:24px;line-height:1.45}
@@ -762,6 +1036,7 @@
         table{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px;break-inside:avoid}
         th,td{border:1px solid #c8d6d0;padding:7px 8px;vertical-align:top;white-space:pre-wrap;word-break:break-word}
         th{width:28%;background:#eef6f2;text-align:left} td:nth-child(2){width:44%} td:nth-child(3){width:28%;color:#555}
+        tr.modified th,tr.modified td{background:#fff3c4}
         @page{size:A4;margin:14mm}@media print{body{margin:0}.noPrint{display:none}}
       </style></head><body><h1>售前配置平台 / Presales Configuration</h1><div class="meta">模板 / Template: ${escapeHtml(config.fileName)} · 车型 / Model: ${escapeHtml(bilingualText(draft.model))}</div>${body}<div class="restore">${RESTORE_PREFIX + encodeDraft()}</div>${autoPrint ? "<script>setTimeout(()=>window.print(),300)<\\/script>" : ""}</body></html>`;
     }
