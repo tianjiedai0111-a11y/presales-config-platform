@@ -23,6 +23,7 @@
     .flatpickr-calendar{background:#09110f;border:1px solid rgba(135,255,209,.30);box-shadow:0 24px 70px rgba(0,0,0,.55);color:#eafff7}.flatpickr-calendar.arrowTop:before,.flatpickr-calendar.arrowTop:after{border-bottom-color:#09110f}.flatpickr-months .flatpickr-month,.flatpickr-current-month .flatpickr-monthDropdown-months,.flatpickr-weekdays,.flatpickr-weekday{background:#09110f;color:#eafff7}.flatpickr-day{color:#dffcf2;border-radius:8px}.flatpickr-day:hover,.flatpickr-day:focus{background:rgba(33,227,155,.16);border-color:rgba(33,227,155,.38)}.flatpickr-day.today{border-color:#21e39b}.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{background:#21e39b;border-color:#21e39b;color:#03110c}.flatpickr-day.flatpickr-disabled,.flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay{color:#53645e}.numInputWrapper span{border-color:rgba(135,255,209,.15)}
     .readonly{white-space:pre-wrap;border:1px dashed rgba(135,255,209,.28);border-radius:10px;min-height:42px;padding:10px;background:rgba(8,18,15,.54);color:#cde9df}
     .field.modified{background:linear-gradient(135deg,rgba(75,56,19,.60),rgba(21,31,28,.88));border-left:3px solid #ffd166}.field.modified .name::after{content:"已修改";margin-left:8px;padding:2px 7px;border:1px solid rgba(255,209,102,.70);border-radius:999px;color:#ffe0a0;font-size:11px;font-weight:700}html[lang="en"] .field.modified .name::after{content:"Modified"}.defaultActions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+    .field.missing{border-left:3px solid #ff747b;background:linear-gradient(135deg,rgba(86,24,32,.58),rgba(20,31,28,.88))}
     .customSales{grid-column:1/-1;display:grid;grid-template-columns:1fr;gap:12px;padding:14px;background:rgba(7,12,11,.28)}.customSalesCard{border:1px solid rgba(135,255,209,.20);border-radius:14px;background:linear-gradient(135deg,rgba(19,33,29,.80),rgba(10,16,14,.88));overflow:hidden}.customSalesCard .cardTitle{background:rgba(15,46,35,.56)}.customSalesGrid{display:grid;grid-template-columns:1fr 1.4fr;gap:1px;background:rgba(135,255,209,.14);padding:1px}.customSalesGrid .field{min-height:92px}.customSalesEmpty{grid-column:1/-1;color:#93b8aa;font-size:13px;padding:4px 2px}.customSalesActions{display:flex;justify-content:flex-start;padding-top:2px}
     .ghost{border:1px solid rgba(135,255,209,.30);background:rgba(255,255,255,.05);border-radius:999px;padding:7px 10px;color:#d9fff1;cursor:pointer}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:18px;background:rgba(7,12,11,.36)}.cards.single{grid-template-columns:1fr}.card{border:1px solid rgba(135,255,209,.22);background:linear-gradient(135deg,rgba(22,33,30,.84),rgba(10,14,13,.86));border-radius:16px;overflow:hidden;box-shadow:0 20px 55px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06)}.cardTitle{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(135,255,209,.18);background:rgba(18,46,36,.48);color:#eafff7}.card .field{border-bottom:1px solid rgba(135,255,209,.12)}
     .thumbBox{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.thumb{width:210px;height:142px;object-fit:cover;border:1px solid rgba(135,255,209,.25);border-radius:12px}.guideImg{width:100%;max-width:320px;max-height:210px;object-fit:contain;display:block;margin:0 0 10px;border:1px solid rgba(135,255,209,.22);border-radius:12px;background:rgba(255,255,255,.92);cursor:pointer}.deviceGallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;padding:14px;background:rgba(7,12,11,.50);border-bottom:1px solid rgba(135,255,209,.16)}.deviceGallery img{width:100%;height:200px;object-fit:contain;background:#f7faf8;border:1px solid rgba(135,255,209,.22);border-radius:12px;cursor:pointer}.empty{min-height:164px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#a4bdb4;background:rgba(8,13,12,.52);border:1px solid rgba(135,255,209,.18);border-radius:14px}
@@ -165,6 +166,39 @@
       const pad = n => String(n).padStart(2, "0");
       return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
+    const APEX_2000_G_REQUIRED_PALLET_FIELDS = [
+      "F 托盘下横梁高度",
+      "G 托盘下横梁高度",
+      "N GMA托盘避让孔后沿距边缘",
+      "O GMA托盘避让孔前沿距边缘"
+    ];
+    function isApex2000G(){
+      return norm(draft.model).includes("Apex 2000-G");
+    }
+    function isShippingDate(row){
+      return norm(row?.name).includes("发货时间");
+    }
+    function isApexRequiredPalletField(row){
+      const name = norm(row?.name);
+      return APEX_2000_G_REQUIRED_PALLET_FIELDS.some(x => name.includes(x));
+    }
+    function rowRequired(row, context=""){
+      if(isShippingDate(row)) return false;
+      if(context === "托盘" && isApexRequiredPalletField(row)) return isApex2000G();
+      if(context === "托盘" || context === "料架") return true;
+      return !!row.required;
+    }
+    function rowRemarkText(row, context=""){
+      const base = labelText(row.remark);
+      if(context === "托盘" && isApexRequiredPalletField(row)){
+        const extra = lang === "en" ? "Required for Apex 2000-G." : "Apex 2000-G必须填写";
+        return [base, extra].filter(Boolean).join("\n");
+      }
+      return base;
+    }
+    function isMissingKey(key){
+      return (draft.missingKeys || []).includes(key);
+    }
     function modelSeries(model){
       const m = norm(model);
       if(!m) return "";
@@ -236,10 +270,10 @@
     function safeFileName(text){
       return norm(text).replace(/[\\/:*?"<>|]/g,"_").replace(/\s+/g," ").trim();
     }
-    function exportFileName(){
+    function exportFileName(incomplete=false){
       const project = draft.values[keyOf("main","项目名称")] || "";
       const model = draft.model || "未选车型";
-      return `${safeFileName(project) || "售前配置"}_${safeFileName(model)}.pdf`;
+      return `${safeFileName(project) || "售前配置"}_${safeFileName(model)}${incomplete ? "_未填写完成" : ""}.pdf`;
     }
     function downloadBlob(blob, fileName){
       const url = URL.createObjectURL(blob);
@@ -449,7 +483,7 @@
       const val = draft.values[k] || "";
       const name = labelText(row.name);
       const imagePreview = row.imageUrl && !suppressImages ? `<img class="guideImg" src="${row.imageUrl}" alt="${escapeHtml(name)}" data-img="${row.imageUrl}" data-title="${escapeHtml(name)}">` : "";
-      return `<div class="field">${imagePreview}<div class="meta"><div><div class="name">${escapeHtml(name)}<span class="req">*</span></div></div></div><input type="text" data-key="${k}" aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${t("placeholder")}"></div>`;
+      return `<div class="field ${isMissingKey(k) ? "missing" : ""}">${imagePreview}<div class="meta"><div><div class="name">${escapeHtml(name)}${rowRequired(row,title)?'<span class="req">*</span>':""}</div>${remark(rowRemarkText(row,title))}</div></div><input type="text" data-key="${k}" aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${t("placeholder")}"></div>`;
     }
     function sectionId(title){
       return title === "托盘" ? "pallet" : title === "料架" ? "rack" : "";
@@ -646,7 +680,7 @@
         const defaultAttrs = isDefaultEditor ? ` data-default-key="${k}" data-original="${escapeHtml(raw)}"` : "";
         control = `<input type="text" ${isDate ? 'data-date="1"' : ""} data-key="${k}"${defaultAttrs} aria-label="${escapeHtml(name)}" value="${escapeHtml(labelText(val))}" placeholder="${placeholder}" autocomplete="off">`;
       }
-      return `<div class="field ${disabled?"disabled":""} ${isDefaultEditor && isDefaultTouched(row) ? "modified" : ""}">${showGuide ? imagePreview : ""}<div class="meta"><div><div class="name">${escapeHtml(name)}${row.required?'<span class="req">*</span>':""}</div>${remark(labelText(row.remark))}</div>${showGuide ? "" : imageBtn}</div>${showGuide ? "" : imagePreview}${control}</div>`;
+      return `<div class="field ${disabled?"disabled":""} ${isDefaultEditor && isDefaultTouched(row) ? "modified" : ""} ${isMissingKey(k) ? "missing" : ""}">${showGuide ? imagePreview : ""}<div class="meta"><div><div class="name">${escapeHtml(name)}${rowRequired(row,prefix)?'<span class="req">*</span>':""}</div>${remark(rowRemarkText(row,prefix))}</div>${showGuide ? "" : imageBtn}</div>${showGuide ? "" : imagePreview}${control}</div>`;
     }
     function salesRemarkCard(){
       const k = keyOf("main","现场特殊需求备注");
@@ -804,6 +838,60 @@
       const ss = $("seriesSelect"); if(ss) ss.onchange = e => { draft.series = e.target.value; draft.model = ""; save(); render(); };
       const ms = $("modelSelect"); if(ms) ms.onchange = e => { draft.model = e.target.value; draft.series = modelSeries(draft.model); save(); render(); };
     }
+    function addMissing(list, key, section, name, value){
+      if(!norm(value)) list.push({ key, section, name });
+    }
+    function collectMissingRequired(){
+      const missing = [];
+      rows("项目基本信息").filter(r=>r.name!=="车型").forEach(r => {
+        if(!rowRequired(r)) return;
+        const key = keyOf("main", r.name);
+        addMissing(missing, key, t("basic"), labelText(r.name), displayDraftValueRaw(key));
+      });
+      rows("售前配置项","售前填写").forEach(r => {
+        if(!rowRequired(r)) return;
+        const key = keyOf("main", r.name);
+        addMissing(missing, key, t("sales"), labelText(r.name), rowExportValueRaw(r));
+      });
+      rows("用电相关","售前填写").forEach(r => {
+        if(!rowRequired(r)) return;
+        const key = keyOf("main", r.name);
+        addMissing(missing, key, t("power"), labelText(r.name), rowExportValueRaw(r));
+      });
+      ["托盘","料架"].forEach(title => {
+        if(draft.repeaters[`${title}::skip`] === true) return;
+        const ids = draft.repeaters[title] || ["1"];
+        const deviceList = config?.devices?.[title] || [];
+        if(deviceList.length){
+          ids.forEach((id, idx) => {
+            const selectedName = draft.values[keyOf(title,"子类型",id)] || deviceList[0].subtype;
+            const selected = deviceList.find(x => x.subtype === selectedName) || deviceList[0];
+            selected.fields.forEach(r => {
+              if(!rowRequired(r,title)) return;
+              const key = keyOf(title, r.name, id);
+              addMissing(missing, key, `${sectionTitle(title)} ${idx+1}`, labelText(r.name), displayDraftValueRaw(key));
+            });
+          });
+          return;
+        }
+        const listRows = title === "托盘" ? rows("托盘","售前填写") : rows("料架","售前填写");
+        ids.forEach((id, idx) => {
+          visibleRepeaterRows(title,listRows,id).forEach(r => {
+            if(!rowRequired(r,title)) return;
+            const key = keyOf(title, r.name, id);
+            addMissing(missing, key, `${sectionTitle(title)} ${idx+1}`, labelText(r.name), rowExportValueRaw(r,title,id));
+          });
+        });
+      });
+      return missing;
+    }
+    function missingConfirmText(missing){
+      const preview = missing.slice(0, 12).map(x => `- ${x.section}: ${x.name}`).join("\n");
+      const more = missing.length > 12 ? `\n...${lang === "en" ? "and more" : "还有更多未填写项"}` : "";
+      return lang === "en"
+        ? `${missing.length} required item(s) are not filled. Export anyway?\n\n${preview}${more}`
+        : `有 ${missing.length} 个必填项未填写，是否确认导出？\n\n${preview}${more}`;
+    }
     function displayDraftValue(key, fallback=""){
       const val = draft.values[key];
       if(val && typeof val === "object") return val.name || "Attachment";
@@ -830,8 +918,12 @@
     }
     function reportTable(title, items){
       if(!items.length) return "";
-      const rowsHtml = items.map(item => `<tr class="${item.modified ? "modified" : ""}"><th>${escapeHtml(item.name)}</th><td>${escapeHtml(item.value || "-")}</td><td>${escapeHtml(item.remark || "")}</td></tr>`).join("");
+      const rowsHtml = items.map(item => `<tr class="${item.missing ? "missing" : item.modified ? "modified" : ""}"><th>${escapeHtml(item.name)}</th><td>${escapeHtml(item.value || "-")}</td><td>${escapeHtml(item.remark || "")}</td></tr>`).join("");
       return `<section><h2>${escapeHtml(title)}</h2><table><thead><tr><th>${lang==="en"?"Item":"项目"}</th><th>${lang==="en"?"Value":"内容"}</th><th>${lang==="en"?"Notes":"备注"}</th></tr></thead><tbody>${rowsHtml}</tbody></table></section>`;
+    }
+    function missingRemark(base, bilingual=false){
+      const tip = bilingual ? "未填写 / Missing Required" : (lang === "en" ? "Missing Required" : "未填写");
+      return [base, tip].filter(Boolean).join("\n");
     }
     function exportRows(group, section, disabled=false){
       return rows(group, section).map(r => ({
@@ -839,8 +931,9 @@
         value: rowExportValue(r, group === "默认配置" ? "default" : "main", "", disabled),
         remark: group === "默认配置" && isDefaultTouched(r)
           ? defaultAuditRemark(r, labelText(r.remark), false)
-          : labelText(r.remark),
-        modified: group === "默认配置" && isDefaultTouched(r)
+          : (isMissingKey(keyOf("main", r.name)) ? missingRemark(labelText(r.remark), false) : labelText(r.remark)),
+        modified: group === "默认配置" && isDefaultTouched(r),
+        missing: isMissingKey(keyOf("main", r.name))
       }));
     }
     function exportRowsBilingual(group, section, disabled=false){
@@ -849,8 +942,9 @@
         value: bilingualText(rowExportValueRaw(r, group === "默认配置" ? "default" : "main", "", disabled)) || "-",
         remark: group === "默认配置" && isDefaultTouched(r)
           ? defaultAuditRemark(r, bilingualText(r.remark), true)
-          : bilingualText(r.remark),
-        modified: group === "默认配置" && isDefaultTouched(r)
+          : (isMissingKey(keyOf("main", r.name)) ? missingRemark(bilingualText(r.remark), true) : bilingualText(r.remark)),
+        modified: group === "默认配置" && isDefaultTouched(r),
+        missing: isMissingKey(keyOf("main", r.name))
       }));
     }
     function customSalesExportItems(){
@@ -893,7 +987,10 @@
       })))).join("");
     }
     function collectReportSections(){
-      const basicItems = rows("项目基本信息").filter(r=>r.name!=="车型").map(r => ({ name: labelText(r.name), value: displayDraftValue(keyOf("main",r.name)), remark: labelText(r.remark) }))
+      const basicItems = rows("项目基本信息").filter(r=>r.name!=="车型").map(r => {
+        const key = keyOf("main",r.name);
+        return { name: labelText(r.name), value: displayDraftValue(key), remark: isMissingKey(key) ? missingRemark(labelText(r.remark), false) : labelText(r.remark), missing:isMissingKey(key) };
+      })
         .concat([{ name:t("series"), value:labelText(modelSeries(draft.model)), remark:"" }, { name:t("model"), value:labelText(draft.model), remark:"" }]);
       const siteRemark = displayDraftValue(keyOf("main","现场特殊需求备注"));
       const salesItems = [{ name:t("siteRemark"), value:siteRemark, remark:t("siteRemarkHelp") }].concat(exportRows("售前配置项","售前填写")).concat(customSalesExportItems());
@@ -906,11 +1003,15 @@
       return { basicItems, salesItems, sections };
     }
     function collectReportSectionsBilingual(){
-      const basicItems = rows("项目基本信息").filter(r=>r.name!=="车型").map(r => ({
-        name: bilingualText(r.name),
-        value: bilingualText(displayDraftValueRaw(keyOf("main",r.name))) || "-",
-        remark: bilingualText(r.remark)
-      })).concat([
+      const basicItems = rows("项目基本信息").filter(r=>r.name!=="车型").map(r => {
+        const key = keyOf("main",r.name);
+        return {
+          name: bilingualText(r.name),
+          value: bilingualText(displayDraftValueRaw(key)) || "-",
+          remark: isMissingKey(key) ? missingRemark(bilingualText(r.remark), true) : bilingualText(r.remark),
+          missing:isMissingKey(key)
+        };
+      }).concat([
         { name:"车型系列 / Model Series", value:bilingualText(modelSeries(draft.model)), remark:"" },
         { name:"车型 / Model", value:bilingualText(draft.model), remark:"" }
       ]);
@@ -936,8 +1037,11 @@
           const selectedName = draft.values[subtypeKey] || list[0].subtype;
           const selected = list.find(x => x.subtype === selectedName) || list[0];
           const items = [{ name: `${sectionTitle(title)} ${lang==="en"?"Subtype":"子类型"}`, value: labelText(selected.translation || selected.subtype), remark: "" }]
-            .concat(selected.fields.map(r => ({ name: labelText(r.name), value: displayDraftValue(keyOf(title,r.name,id)), remark: "" })));
-          return { title:`${sectionTitle(title)} ${idx+1}`, items };
+            .concat(selected.fields.map(r => {
+              const key = keyOf(title,r.name,id);
+              return { name: labelText(r.name), value: displayDraftValue(key), remark: isMissingKey(key) ? missingRemark(rowRemarkText(r,title), false) : rowRemarkText(r,title), missing:isMissingKey(key) };
+            }));
+          return { title:`${sectionTitle(title)} ${idx+1}`, items, images:selected.images || [] };
         });
       }
       const listRows = title === "托盘" ? rows("托盘","售前填写") : rows("料架","售前填写");
@@ -946,7 +1050,8 @@
         items:visibleRepeaterRows(title,listRows,id).map(r => ({
           name: labelText(r.name),
           value: rowExportValue(r,title,id),
-          remark: labelText(r.remark)
+          remark: isMissingKey(keyOf(title,r.name,id)) ? missingRemark(rowRemarkText(r,title), false) : rowRemarkText(r,title),
+          missing:isMissingKey(keyOf(title,r.name,id))
         }))
       }));
     }
@@ -963,8 +1068,12 @@
           const subtypeName = `${title}子类型`;
           const subtypeValue = selected.translation ? `${selected.subtype} / ${selected.translation}` : selected.subtype;
           const items = [{ name:bilingualText(subtypeName), value:bilingualText(subtypeValue), remark:"" }]
-            .concat(selected.fields.map(r => ({ name:bilingualText(r.name), value:bilingualText(displayDraftValueRaw(keyOf(title,r.name,id))) || "-", remark:"" })));
-          return { title:`${titleBi} ${idx+1}`, items };
+            .concat(selected.fields.map(r => {
+              const key = keyOf(title,r.name,id);
+              const remarkBase = title === "托盘" && isApexRequiredPalletField(r) ? "Apex 2000-G必须填写 / Required for Apex 2000-G." : "";
+              return { name:bilingualText(r.name), value:bilingualText(displayDraftValueRaw(key)) || "-", remark:isMissingKey(key) ? missingRemark(remarkBase, true) : remarkBase, missing:isMissingKey(key) };
+            }));
+          return { title:`${titleBi} ${idx+1}`, items, images:selected.images || [] };
         });
       }
       const listRows = title === "托盘" ? rows("托盘","售前填写") : rows("料架","售前填写");
@@ -973,7 +1082,8 @@
         items:visibleRepeaterRows(title,listRows,id).map(r => ({
           name:bilingualText(r.name),
           value:bilingualText(rowExportValueRaw(r,title,id)) || "-",
-          remark:bilingualText(r.remark)
+          remark:isMissingKey(keyOf(title,r.name,id)) ? missingRemark(bilingualText(r.remark), true) : bilingualText(r.remark),
+          missing:isMissingKey(keyOf(title,r.name,id))
         }))
       }));
     }
@@ -1019,7 +1129,39 @@
         pdf.setFontSize(size);
         return pdf.splitTextToSize(String(text || "-"), width - 4);
       };
-      const drawRow = (cells, header=false, modified=false) => {
+      const imageFormat = src => (String(src).match(/^data:image\/(\w+)/i)?.[1] || "png").toUpperCase().replace("JPG","JPEG");
+      const imageSize = src => new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve({ w:img.naturalWidth || 1, h:img.naturalHeight || 1 });
+        img.onerror = () => resolve({ w:1, h:1 });
+        img.src = src;
+      });
+      const drawImages = async images => {
+        const list = (images || []).filter(x => x.url);
+        if(!list.length) return;
+        const gap = 4;
+        const cols = 3;
+        const boxW = (pageW - margin * 2 - gap * (cols - 1)) / cols;
+        const boxH = 34;
+        for(let i=0;i<list.length;i++){
+          const col = i % cols;
+          if(col === 0) addPageIfNeeded(boxH + 12);
+          const x = margin + col * (boxW + gap);
+          const yImg = y;
+          const size = await imageSize(list[i].url);
+          const scale = Math.min((boxW - 4) / size.w, (boxH - 7) / size.h);
+          const w = size.w * scale;
+          const h = size.h * scale;
+          pdf.setDrawColor(190, 207, 199);
+          pdf.rect(x, yImg, boxW, boxH);
+          try{ pdf.addImage(list[i].url, imageFormat(list[i].url), x + (boxW - w)/2, yImg + 2, w, h); }catch(err){}
+          pdf.setFontSize(6.5);
+          pdf.setTextColor(80, 92, 88);
+          pdf.text(pdf.splitTextToSize(bilingualText(list[i].title || "图例"), boxW - 4), x + 2, yImg + boxH - 2);
+          if(col === cols - 1 || i === list.length - 1) y += boxH + 4;
+        }
+      };
+      const drawRow = (cells, header=false, modified=false, missing=false) => {
         const size = header ? 9 : 8.4;
         const lines = cells.map((c,i) => textLines(c, widths[i], size));
         const h = Math.max(8, ...lines.map(l => l.length * lineH + 3));
@@ -1028,6 +1170,7 @@
         pdf.setDrawColor(190, 207, 199);
         cells.forEach((_, i) => {
           if(header){ pdf.setFillColor(232, 244, 238); pdf.rect(x, y, widths[i], h, "FD"); }
+          else if(missing){ pdf.setFillColor(255, 226, 230); pdf.rect(x, y, widths[i], h, "FD"); }
           else if(modified){ pdf.setFillColor(255, 245, 207); pdf.rect(x, y, widths[i], h, "FD"); }
           else pdf.rect(x, y, widths[i], h);
           pdf.setTextColor(header ? 5 : 20, header ? 72 : 20, header ? 50 : 20);
@@ -1037,15 +1180,16 @@
         });
         y += h;
       };
-      const drawSection = section => {
+      const drawSection = async section => {
         if(!section.items.length) return;
         addPageIfNeeded(18);
         pdf.setFontSize(14);
         pdf.setTextColor(4, 74, 51);
         pdf.text(section.title, margin, y);
         y += 7;
+        await drawImages(section.images);
         drawRow(["项目 / Item", "内容 / Value", "备注 / Notes"], true);
-        section.items.forEach(item => drawRow([item.name, item.value || "-", item.remark || ""], false, item.modified));
+        section.items.forEach(item => drawRow([item.name, item.value || "-", item.remark || ""], false, item.modified, item.missing));
         y += 5;
       };
       pdf.setFontSize(17);
@@ -1057,14 +1201,14 @@
       pdf.text(`模板 / Template: ${config.fileName}    车型 / Model: ${bilingualText(draft.model)}`, margin, y);
       y += 8;
       const report = collectReportSectionsBilingual();
-      drawSection(report.sections[0]);
-      drawSection(report.sections[1]);
-      drawSection(report.sections[2]);
-      deviceReportSectionsBilingual("托盘").forEach(drawSection);
-      deviceReportSectionsBilingual("料架").forEach(drawSection);
-      drawSection(report.sections[3]);
+      await drawSection(report.sections[0]);
+      await drawSection(report.sections[1]);
+      await drawSection(report.sections[2]);
+      for(const section of deviceReportSectionsBilingual("托盘")) await drawSection(section);
+      for(const section of deviceReportSectionsBilingual("料架")) await drawSection(section);
+      await drawSection(report.sections[3]);
       const auditSection = defaultAuditReportSectionBilingual();
-      if(auditSection) drawSection(auditSection);
+      if(auditSection) await drawSection(auditSection);
       pdf.setFontSize(1);
       pdf.setTextColor(255,255,255);
       pdf.text(RESTORE_PREFIX + encodeDraft(), margin, pageH - 3);
@@ -1089,6 +1233,7 @@
         th,td{border:1px solid #c8d6d0;padding:7px 8px;vertical-align:top;white-space:pre-wrap;word-break:break-word}
         th{width:28%;background:#eef6f2;text-align:left} td:nth-child(2){width:44%} td:nth-child(3){width:28%;color:#555}
         tr.modified th,tr.modified td{background:#fff3c4}
+        tr.missing th,tr.missing td{background:#ffe2e6}
         @page{size:A4;margin:14mm}@media print{body{margin:0}.noPrint{display:none}}
       </style></head><body><h1>售前配置平台 / Presales Configuration</h1><div class="meta">模板 / Template: ${escapeHtml(config.fileName)} · 车型 / Model: ${escapeHtml(bilingualText(draft.model))}</div>${body}<div class="restore">${RESTORE_PREFIX + encodeDraft()}</div>${autoPrint ? "<script>setTimeout(()=>window.print(),300)<\\/script>" : ""}</body></html>`;
     }
@@ -1201,8 +1346,15 @@
     $("pdfBtn").onclick = async () => {
       if(!config){ alert(lang === "en" ? "Load a configuration template before exporting." : "请先加载配置模板后再导出。"); return; }
       if(!draft.model){ alert(lang === "en" ? "Select a model before exporting PDF." : "请先选择车型后再导出PDF。"); return; }
+      const missing = collectMissingRequired();
+      draft.missingKeys = missing.map(x => x.key);
+      save();
+      if(missing.length && !confirm(missingConfirmText(missing))){
+        render();
+        return;
+      }
       const btn = $("pdfBtn");
-      const fileName = exportFileName();
+      const fileName = exportFileName(missing.length > 0);
       btn.disabled = true;
       btn.textContent = t("pdfGenerating");
       $("loading").textContent = t("pdfGenerating");
