@@ -1199,6 +1199,8 @@
       pdf.setFontSize(9);
       pdf.setTextColor(80, 92, 88);
       pdf.text(`模板 / Template: ${config.fileName}    车型 / Model: ${bilingualText(draft.model)}`, margin, y);
+      y += 5;
+      pdf.text(`导出时间 / Export Time: ${timeStamp()}`, margin, y);
       y += 8;
       const report = collectReportSectionsBilingual();
       await drawSection(report.sections[0]);
@@ -1235,7 +1237,7 @@
         tr.modified th,tr.modified td{background:#fff3c4}
         tr.missing th,tr.missing td{background:#ffe2e6}
         @page{size:A4;margin:14mm}@media print{body{margin:0}.noPrint{display:none}}
-      </style></head><body><h1>售前配置平台 / Presales Configuration</h1><div class="meta">模板 / Template: ${escapeHtml(config.fileName)} · 车型 / Model: ${escapeHtml(bilingualText(draft.model))}</div>${body}<div class="restore">${RESTORE_PREFIX + encodeDraft()}</div>${autoPrint ? "<script>setTimeout(()=>window.print(),300)<\\/script>" : ""}</body></html>`;
+      </style></head><body><h1>售前配置平台 / Presales Configuration</h1><div class="meta">模板 / Template: ${escapeHtml(config.fileName)} · 车型 / Model: ${escapeHtml(bilingualText(draft.model))}<br>导出时间 / Export Time: ${escapeHtml(timeStamp())}</div>${body}<div class="restore">${RESTORE_PREFIX + encodeDraft()}</div>${autoPrint ? "<script>setTimeout(()=>window.print(),300)<\\/script>" : ""}</body></html>`;
     }
     function printExportForm(fileName){
       const html = exportHtml(fileName, false);
