@@ -117,7 +117,7 @@
     };
     const HAS_ZH = /[\u2e80-\u2fff\u3400-\u9fff]/;
     function labelText(v){
-      let text = norm(v).normalize("NFKC").replaceAll("遥控手柄，用于AME遥控","遥控手柄,用于AMR遥控").replaceAll("遥控手柄，用于AMR遥控","遥控手柄,用于AMR遥控").replaceAll("⽅","方").replaceAll("⻓","长");
+      let text = norm(v).normalize("NFKC").replaceAll("遥控手柄，用于AME遥控","遥控手柄,用于AMR遥控").replaceAll("遥控手柄,用于AME遥控","遥控手柄,用于AMR遥控").replaceAll("遥控手柄，用于AMR遥控","遥控手柄,用于AMR遥控").replaceAll("⽅","方").replaceAll("⻓","长");
       if(lang !== "en" || !text) return text;
       if(templateTranslations[text]) return templateTranslations[text];
       if(text === ", AME") return "Remote Controller for AMR Operation";
@@ -151,7 +151,7 @@
       return translated;
     }
     function bilingualText(v){
-      const zh = norm(v).normalize("NFKC").replaceAll("遥控手柄，用于AME遥控","遥控手柄,用于AMR遥控").replaceAll("遥控手柄，用于AMR遥控","遥控手柄,用于AMR遥控").replaceAll("⽅","方").replaceAll("⻓","长");
+      const zh = norm(v).normalize("NFKC").replaceAll("遥控手柄，用于AME遥控","遥控手柄,用于AMR遥控").replaceAll("遥控手柄,用于AME遥控","遥控手柄,用于AMR遥控").replaceAll("遥控手柄，用于AMR遥控","遥控手柄,用于AMR遥控").replaceAll("⽅","方").replaceAll("⻓","长");
       if(!zh) return "";
       const en = englishText(zh);
       if(!en || en === zh) return zh;
