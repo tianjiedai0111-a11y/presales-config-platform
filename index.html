@@ -106,6 +106,7 @@
     const CONFIG_EN = {
       "项目名称":"Project Name","商机号":"Opportunity ID","车型数量":"Vehicle Qty","发货时间":"Shipping Date","售前":"Presales Owner","车型":"Model","车型系列":"Model Series",
       "红色示廓灯":"Red Clearance Light","蓝点灯":"Blue Spot Light","电源插头型号":"Power Plug Model","包装方式":"Packaging Method","货叉外宽要求":"Fork Outer Width Requirement","货叉长度要求":"Fork Length Requirement","举升高度要求":"Lift Height Requirement","横移":"Side Shift","叉尺间距可调":"Adjustable Fork Spacing","叉齿俯仰":"Fork Pitch Tilt","5G要求":"5G Requirement","下视二维码相机":"Downward QR Camera","托盘规格":"Pallet Specification","附加要求":"Additional Requirements","载重要求":"Load Capacity Requirement",
+      "Bom输出时间":"BOM Output Time","BOM输出时间":"BOM Output Time",
       "现场电压":"Site Voltage","电源插座接口图片":"Power Socket Interface Photo","充电极板":"Charging Contacts","用电相关":"Power & Charging",
       "托盘":"Pallet","料架":"Rack","托盘子类型":"Pallet Subtype","料架子类型":"Rack Subtype","托盘类型":"Pallet Type","料架类型":"Rack Type","川字托盘":"Open Deck Pallet","田字托盘":"Closed Deck Pallet","支腿托盘":"Legged Pallet","支腿料箱":"Legged Bin","托盘料箱":"Pallet Box","背负料架":"Lift Rack","牵引料架":"Tow Rack","潜伏牵引料架":"Under-run Tow Rack",
       "叉取方向边长-W(mm)":"Fork-entry Side Length - W (mm)","非叉取方向边长-L(mm)":"Non-fork-entry Side Length - L (mm)","叉取方向两侧立柱宽-W1(mm)":"Outer Support Width - W1 (mm)","叉取方向中间立柱宽-W2(mm)":"Center Support Width - W2 (mm)","高-H(mm)":"Height - H (mm)","F 托盘下横梁高度":"F: Lower Deck Board Height","G 托盘下横梁高度":"G: Lower Deck Board Height","N GMA托盘避让孔后沿距边缘":"N: Rear Edge Clearance to GMA Relief Slot","O GMA托盘避让孔前沿距边缘":"O: Front Edge Clearance to GMA Relief Slot",
@@ -178,11 +179,15 @@
     function isShippingDate(row){
       return norm(row?.name).includes("发货时间");
     }
+    function isBomOutputTime(row){
+      return /bom输出时间/i.test(norm(row?.name));
+    }
     function isApexRequiredPalletField(row){
       const name = norm(row?.name);
       return APEX_2000_G_REQUIRED_PALLET_FIELDS.some(x => name.includes(x));
     }
     function rowRequired(row, context=""){
+      if(isBomOutputTime(row)) return false;
       if(isShippingDate(row)) return false;
       if(context === "托盘" && isApexRequiredPalletField(row)) return isApex2000G();
       if(context === "托盘" || context === "料架") return true;
@@ -435,6 +440,9 @@
         if(group === "项目基本信息" || group === "用电相关" || group === "托盘" || group === "料架") return true;
         return norm(r.values[draft.model]) !== "";
       });
+    }
+    function salesDisplayRows(){
+      return rows("售前配置项","默认配置").filter(isBomOutputTime);
     }
 
     function remark(text){ return text ? `<div class="remark">${escapeHtml(text)}</div>` : ""; }
@@ -775,11 +783,12 @@
       if(!draft.model){ root.innerHTML = html + `<section class="empty"><strong>${t("chooseModelFirst")}</strong></section>`; bind(); return; }
       html += `<nav class="quickNav"><strong>${escapeHtml(labelText(draft.model))}</strong><a class="navChip" href="#basic">${t("basic")}</a><a class="navChip" href="#sales">${t("sales")}</a><a class="navChip" href="#power">${t("power")}</a><a class="navChip" href="#pallet">${t("pallet")}</a><a class="navChip" href="#rack">${t("rack")}</a><a class="navChip" href="#defaultConfig">${t("defaults")}</a></nav>`;
       const sales = rows("售前配置项","售前填写");
+      const salesDisplay = salesDisplayRows();
       const power = rows("用电相关","售前填写");
       const pallet = rows("托盘","售前填写");
       const rack = rows("料架","售前填写");
       const def = rows("默认配置","默认配置");
-      html += `<section class="band" id="sales"><div class="head"><h2>${t("sales")}</h2></div><div class="grid">${salesRemarkCard()}${sales.map(r=>field(r)).join("")}${customSalesItems()}</div></section>`;
+      html += `<section class="band" id="sales"><div class="head"><h2>${t("sales")}</h2></div><div class="grid">${salesRemarkCard()}${salesDisplay.map(r=>field(r,"main","",true)).join("")}${sales.map(r=>field(r)).join("")}${customSalesItems()}</div></section>`;
       html += `<section class="band" id="power"><div class="head"><h2>${t("power")}</h2></div><div class="grid">${power.map(r=>field(r)).join("")}</div></section>`;
       if(config.devices?.["托盘"]?.length) html += deviceRepeater("托盘");
       else if(pallet.length) html += repeater("托盘", pallet);
@@ -1002,6 +1011,20 @@
           remark:"临时添加项，仅导出PDF / Temporary item, PDF export only"
         }));
     }
+    function salesDisplayExportItems(){
+      return salesDisplayRows().map(r => ({
+        name: labelText(r.name),
+        value: rowExportValue(r, "main", "", true),
+        remark: labelText(r.remark)
+      }));
+    }
+    function salesDisplayExportItemsBilingual(){
+      return salesDisplayRows().map(r => ({
+        name: bilingualText(r.name),
+        value: bilingualText(rowExportValueRaw(r, "main", "", true)) || "-",
+        remark: bilingualText(r.remark)
+      }));
+    }
     function exportDeviceSection(title){
       if(draft.repeaters[`${title}::skip`] === true) return reportTable(sectionTitle(title), [{ name: sectionTitle(title), value: `${t("noNeedPrefix")} ${sectionTitle(title)}`, remark: "" }]);
       const list = config?.devices?.[title] || [];
@@ -1030,7 +1053,7 @@
       })
         .concat([{ name:t("series"), value:labelText(modelSeries(draft.model)), remark:"" }, { name:t("model"), value:labelText(draft.model), remark:"" }]);
       const siteRemark = displayDraftValue(keyOf("main","现场特殊需求备注"));
-      const salesItems = [{ name:t("siteRemark"), value:siteRemark, remark:t("siteRemarkHelp") }].concat(exportRows("售前配置项","售前填写")).concat(customSalesExportItems());
+      const salesItems = [{ name:t("siteRemark"), value:siteRemark, remark:t("siteRemarkHelp") }].concat(salesDisplayExportItems()).concat(exportRows("售前配置项","售前填写")).concat(customSalesExportItems());
       const sections = [
         { title:t("basic"), items:basicItems },
         { title:t("sales"), items:salesItems },
@@ -1054,6 +1077,7 @@
       ]);
       const siteRemark = displayDraftValueRaw(keyOf("main","现场特殊需求备注"));
       const salesItems = [{ name:bilingualText("现场特殊需求备注"), value:bilingualText(siteRemark) || "-", remark:bilingualText("用于补充说明现场工况、客户特殊要求或其他需要研发关注的信息。") }]
+        .concat(salesDisplayExportItemsBilingual())
         .concat(exportRowsBilingual("售前配置项","售前填写"))
         .concat(customSalesExportItemsBilingual());
       const sections = [
