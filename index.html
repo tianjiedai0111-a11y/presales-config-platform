@@ -1167,11 +1167,14 @@
     async function exportPdfDirect(fileName){
       if(!window.jspdf?.jsPDF) throw new Error("jspdf-not-loaded");
       const pdf = new jspdf.jsPDF("p","mm","a4");
+      let chineseFontReady = false;
       if(window.PDF_FONT_SIMHEI_BASE64){
         pdf.addFileToVFS("simhei.ttf", window.PDF_FONT_SIMHEI_BASE64);
         pdf.addFont("simhei.ttf", "SimHei", "normal");
         pdf.setFont("SimHei", "normal");
+        chineseFontReady = pdf.getFont?.().fontName === "SimHei";
       }
+      if(!chineseFontReady) throw new Error("pdf-chinese-font-not-loaded");
       pdf.setProperties({
         title:fileName.replace(/\.pdf$/i,""),
         subject:RESTORE_PREFIX + encodeDraft(),
@@ -1428,7 +1431,7 @@
         showToast(`${t("pdfDone")}: ${fileName}`);
       }catch(err){
         downloadBlob(new Blob([exportHtml(fileName, true)], { type:"text/html;charset=utf-8" }), fileName.replace(/\.pdf$/i,"") + ".html");
-        showToast(lang === "en" ? "PDF export fallback downloaded as printable HTML." : "PDF 直接导出失败，已下载可打印 HTML 兜底。");
+        showToast(lang === "en" ? "PDF export fallback downloaded as printable HTML. Check that pdf-font-simhei.js is uploaded." : "PDF 直接导出失败，已下载可打印 HTML 兜底。请确认 GitHub 已上传 pdf-font-simhei.js。");
       }finally{
         btn.disabled = false;
         btn.textContent = t("exportPdf");
